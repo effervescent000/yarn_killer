@@ -96,5 +96,6 @@ class Link(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     url = db.Column(db.String(300), nullable=False)
     store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
+    yarn_id = db.Column(db.Integer, db.ForeignKey('yarn.id'))
     current_price = db.Column(db.Float)
     price_updated = db.Column(db.DateTime)
