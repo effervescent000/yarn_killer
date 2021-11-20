@@ -29,8 +29,7 @@ def signup():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     if current_user.is_authenticated:
-        # redirect to homepage
-        pass
+        return redirect(url_for('index.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -38,9 +37,14 @@ def login():
             login_user(user)
             # TODO look into how to secure the next_page thing
             next_page = request.args.get('next')
-            # return redirect to homepage or next_page
+            return redirect(url_for('index.index'))
         flash('Invalid username/password combination')
+    return render_template('yarn_killer/login.html', form=form)
 
+@bp.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index.index'))
 
 @login_manager.user_loader
 def load_user(user_id):

@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_field_no_label %}
 
 {% block content %}
+
+<div id="form-wrapper">
+    <span>Login</span>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ render_field(form.username) }}<br>
+        {{ render_field(form.password) }}<br>
+        {{ render_field_no_label(form.submit) }}
+    </form>
+</div>
 
 {% endblock %}
