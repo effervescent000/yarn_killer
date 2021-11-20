@@ -4,6 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 
 
+stores_table = db.Table('store_table',
+    db.Column('yarn_id', db.Integer, db.ForeignKey('yarn.id'), primary_key=True),
+    db.Column('store_id', db.Integer, db.ForeignKey('stores.id'), primary_key=True)
+)
+
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -36,7 +41,8 @@ class Yarn(db.Model):
     discontinued = db.Column(db.Boolean, default=False)
     
     fibers = db.relationship('Fiber', backref='yarn', lazy=True, cascade='all, delete-orphan')
-    store_links = db.relationship('StorePage', backref='yarn', lazy=True, cascade='all, delete-orphan')
+    links = db.relationship('Link', backref='yarn', lazy=True, cascade='all, delete-orphan')
+    stores = db.relationship('Store', secondary=stores_table, back_populates='yarns')
 
     def __repr__(self):
         return f'<Yarn {self.brand} {self.name}>'
@@ -75,12 +81,20 @@ class Stock(db.Model):
 
     def __repr__(self):
         return f'<Stock {self.id}>'
-    
 
-class StorePage(db.Model):
-    __tablename__ = 'pages'
+
+class Store(db.Model):
+    __tablename__ = 'stores'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(200), nullable=False)
+    links = db.relationship('Link', backref='store', lazy=True, cascade='all, delete-orphan')
+    yarns = db.relationship('Yarn', secondary=stores_table, back_populates='stores')
+
+
+class Link(db.Model):
+    __tablename__ = 'links'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     url = db.Column(db.String(300), nullable=False)
-    yarn_id = db.Column(db.Integer, db.ForeignKey('yarn.id'))
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.id'))
     current_price = db.Column(db.Float)
     price_updated = db.Column(db.DateTime)

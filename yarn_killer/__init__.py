@@ -20,7 +20,7 @@ def create_app(test_config=None):
     db.init_app(app)
 
     with app.app_context():
-        from .models import User, Yarn, Fiber, Stash, Stock, StorePage
+        from .models import User, Yarn, Fiber, Stash, Stock, Link, Store
         db.create_all()
 
         return app
