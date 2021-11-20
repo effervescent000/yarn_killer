@@ -11,6 +11,7 @@ stores_table = db.Table('store_table',
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(50))
@@ -47,7 +48,6 @@ class Yarn(db.Model):
     def __repr__(self):
         return f'<Yarn {self.brand} {self.name}>'
     
-
 
 class Fiber(db.Model):
     __tablename__ = 'fibers'

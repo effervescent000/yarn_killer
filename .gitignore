@@ -132,3 +132,4 @@ dmypy.json
 /design
 config.py
 yarn_killer/static/*.map
+yarn_killer/yarnkiller.sqlite
