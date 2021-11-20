@@ -1,0 +1,47 @@
+@import "variables", "mixins";
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $primary-background-color;
+  color: $primary-text-color;
+
+  #page-container {
+    #header {
+      display: flex;
+      position: relative;
+      padding: 20px 20px;
+      justify-content: space-between;
+      background-color: $secondary-background-color;
+      #left-side-header .nav-bar {
+        @include nav-bar-styles;
+      }
+      #center-header {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, -20px);
+        background-color: $primary-background-color;
+        #logo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 20px 100px;
+          img {
+            height: 100px;
+            color: white;
+          }
+          span {
+            color: $secondary-text-color;
+            padding-top: 20px;
+            // font-family: 'Praise', cursive;
+            font-family: 'Marck Script', cursive;
+            font-size: 2.5em;
+          }
+        }
+      }
+      #right-side-header .nav-bar {
+        @include nav-bar-styles;
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #212738;
+  color: #85FFC7;
+}
+
+body #page-container #header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  padding: 20px 20px;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  background-color: #2A6041;
+}
+
+body #page-container #header #left-side-header .nav-bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 30px;
+}
+
+body #page-container #header #center-header {
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translate(-50%, -20px);
+          transform: translate(-50%, -20px);
+  background-color: #212738;
+}
+
+body #page-container #header #center-header #logo {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 20px 100px;
+}
+
+body #page-container #header #center-header #logo img {
+  height: 100px;
+  color: white;
+}
+
+body #page-container #header #center-header #logo span {
+  color: #BAD7F2;
+  padding-top: 20px;
+  font-family: 'Marck Script', cursive;
+  font-size: 2.5em;
+}
+
+body #page-container #header #right-side-header .nav-bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 30px;
+}
+/*# sourceMappingURL=common.css.map */

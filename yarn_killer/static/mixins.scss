@@ -1,0 +1,5 @@
+@mixin nav-bar-styles {
+    display: flex;
+    gap: 30px;
+    @content
+}
