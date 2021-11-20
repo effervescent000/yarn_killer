@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_field_no_label %}
+
+{% block content %}
+<!-- start in content-wrapper div -->
+    <div id="form-wrapper">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {{ render_field(form.brand_name) }}<br>
+            {{ render_field(form.yarn_name) }}<br>
+            {{ render_field(form.weight_name) }}<br>
+            {{ render_field(form.gauge) }}<br>
+            {{ render_field(form.yardage) }}<br>
+            {{ render_field(form.weight_grams) }}<br>
+            {{ render_field(form.discontinued) }}<br>
+            {{ render_field(form.fiber_type_list) }}<br>
+            {{ render_field_no_label(form.submit) }}
+        </form>
+    </div>
+{% endblock %}

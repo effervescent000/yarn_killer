@@ -33,12 +33,11 @@ class Yarn(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     brand = db.Column(db.String(200), nullable=False)
     name = db.Column(db.String(200), nullable=False)
-    wpi = db.Column(db.Integer)
+    weight_name = db.Column(db.String(50))
     gauge = db.Column(db.Integer)
     # yardage is, obviously, in yards
     yardage = db.Column(db.Integer)
-    # weight is in grams
-    weight = db.Column(db.Integer)
+    weight_grams = db.Column(db.Integer)
     discontinued = db.Column(db.Boolean, default=False)
     
     fibers = db.relationship('Fiber', backref='yarn', lazy=True, cascade='all, delete-orphan')
