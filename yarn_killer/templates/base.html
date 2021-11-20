@@ -7,7 +7,7 @@
     <title>Yarn Killer!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Calligraffitti&family=Marck+Script&family=Praise&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin&family=Marck+Script&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="../static/common.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
         <div id="header">
             <div id="left-side-header">
                 <div class="nav-bar">
-                    <span class="NYI">Browse Yarns</span>
-                    <span class="NYI">Search Yarns</span>
+                    <a href="#" class="NYI">Browse Yarns</a>
+                    <a href="#" class="NYI">Search Yarns</a href="#">
                 </div>
             </div>
             <div id="center-header">
@@ -32,6 +32,7 @@
                 </div>
             </div>
         </div>
+        {% block content %}{% endblock %}
     </div>
 </body>
 </html>

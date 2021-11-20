@@ -3,6 +3,7 @@ body {
   padding: 0;
   background-color: #212738;
   color: #85FFC7;
+  font-family: "Libre Franklin", sans-serif;
 }
 
 body #page-container #header {
@@ -17,19 +18,14 @@ body #page-container #header {
   background-color: #2A6041;
 }
 
-body #page-container #header #left-side-header .nav-bar {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  gap: 30px;
-}
-
 body #page-container #header #center-header {
   position: absolute;
   left: 50%;
   -webkit-transform: translate(-50%, -20px);
           transform: translate(-50%, -20px);
-  background-color: #212738;
+  background: #2a6041;
+  background: -webkit-gradient(linear, left top, right top, from(rgba(42, 96, 65, 0)), color-stop(30%, #212738), color-stop(70%, #212738), to(rgba(42, 96, 65, 0)));
+  background: linear-gradient(90deg, rgba(42, 96, 65, 0) 0%, #212738 30%, #212738 70%, rgba(42, 96, 65, 0) 100%);
 }
 
 body #page-container #header #center-header #logo {
@@ -54,14 +50,22 @@ body #page-container #header #center-header #logo img {
 body #page-container #header #center-header #logo span {
   color: #BAD7F2;
   padding-top: 20px;
-  font-family: 'Marck Script', cursive;
+  font-family: "Marck Script", cursive;
   font-size: 2.5em;
 }
 
-body #page-container #header #right-side-header .nav-bar {
+.NYI {
+  text-decoration: line-through;
+}
+
+.nav-bar {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   gap: 30px;
+}
+
+.nav-bar a {
+  color: #BAD7F2;
 }
 /*# sourceMappingURL=common.css.map */

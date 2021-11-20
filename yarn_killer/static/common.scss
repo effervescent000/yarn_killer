@@ -5,6 +5,7 @@ body {
   padding: 0;
   background-color: $primary-background-color;
   color: $primary-text-color;
+  font-family: $primary-font;
 
   #page-container {
     #header {
@@ -13,14 +14,18 @@ body {
       padding: 20px 20px;
       justify-content: space-between;
       background-color: $secondary-background-color;
-      #left-side-header .nav-bar {
-        @include nav-bar-styles;
-      }
       #center-header {
         position: absolute;
         left: 50%;
         transform: translate(-50%, -20px);
-        background-color: $primary-background-color;
+        background: rgb(42, 96, 65);
+        background: linear-gradient(
+          90deg,
+          rgba(42, 96, 65, 0) 0%,
+          rgba(33, 39, 56, 1) 30%,
+          rgba(33, 39, 56, 1) 70%,
+          rgba(42, 96, 65, 0) 100%
+        );
         #logo {
           display: flex;
           flex-direction: column;
@@ -34,14 +39,22 @@ body {
             color: $secondary-text-color;
             padding-top: 20px;
             // font-family: 'Praise', cursive;
-            font-family: 'Marck Script', cursive;
+            font-family: $title-font;
             font-size: 2.5em;
           }
         }
       }
-      #right-side-header .nav-bar {
-        @include nav-bar-styles;
-      }
     }
+  }
+}
+
+.NYI {
+  text-decoration: line-through;
+}
+
+.nav-bar {
+  @include nav-bar-styles;
+  a {
+    @include link-styles;
   }
 }

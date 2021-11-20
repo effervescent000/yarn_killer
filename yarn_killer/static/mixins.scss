@@ -1,5 +1,10 @@
 @mixin nav-bar-styles {
     display: flex;
     gap: 30px;
-    @content
+    @content;
+}
+
+@mixin link-styles {
+    color: $secondary-text-color;
+    @content;
 }
