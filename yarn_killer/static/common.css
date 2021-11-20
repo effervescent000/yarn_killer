@@ -54,8 +54,8 @@ body #page-container #header #center-header #logo span {
   font-size: 2.5em;
 }
 
-.NYI {
-  text-decoration: line-through;
+body #page-container #content-wrapper {
+  margin: 150px 50px;
 }
 
 .nav-bar {
@@ -67,5 +67,14 @@ body #page-container #header #center-header #logo span {
 
 .nav-bar a {
   color: #BAD7F2;
+  text-decoration: none;
+}
+
+.nav-bar a:hover {
+  text-decoration: underline;
+}
+
+.NYI {
+  text-decoration: line-through !important;
 }
 /*# sourceMappingURL=common.css.map */

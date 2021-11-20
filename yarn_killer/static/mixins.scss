@@ -6,5 +6,10 @@
 
 @mixin link-styles {
     color: $secondary-text-color;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+        @content;
+    }
     @content;
 }

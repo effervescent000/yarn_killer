@@ -27,12 +27,20 @@
             </div>
             <div id="right-side-header">
                 <div class="nav-bar">
-                    <span class="NYI">Account stuff</span>
-                    <span class="NYI">More account stuff</span>
+                    {% if current_user.is_authenticated %}
+                        <a href="#" class="NYI">Account stuff</a>
+                        <a href="#" class="NYI">More account stuff</a>
+                        <a href="#" class="NYI">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.signup') }}">Register</a>
+                        <a href="#" class="NYI">Login</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        {% block content %}{% endblock %}
+        <div id="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 </body>
 </html>

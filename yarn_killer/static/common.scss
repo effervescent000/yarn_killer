@@ -45,11 +45,10 @@ body {
         }
       }
     }
+    #content-wrapper {
+      margin: 150px 50px;
+    }
   }
-}
-
-.NYI {
-  text-decoration: line-through;
 }
 
 .nav-bar {
@@ -57,4 +56,8 @@ body {
   a {
     @include link-styles;
   }
+}
+
+.NYI {
+  text-decoration: line-through !important;
 }
