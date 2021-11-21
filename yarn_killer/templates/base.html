@@ -9,13 +9,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin&family=Marck+Script&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    {% block header %}
+    {% endblock %}
 </head>
 <body>
     <div id="page-container">
         <div id="header">
             <div id="left-side-header">
                 <div class="nav-bar">
-                    <a href="#" class="NYI">Browse Yarns</a>
+                    <a href="{{ url_for('yarn.browse') }}">Browse Yarns</a>
                     <a href="#" class="NYI">Search Yarns</a>
                     <a href="{{ url_for('yarn.edit_yarn', id='new') }}">Add Yarn</a>
                 </div>

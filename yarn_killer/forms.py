@@ -9,7 +9,7 @@ from .utils import get_yarn_weight_tuple, get_fiber_types_list
 
 
 class FiberForm(FlaskForm):
-    fiber_type = SelectField('Fiber', choices=get_fiber_types_list, validators=[Optional()])
+    fiber_type = SelectField('Fiber', choices=get_fiber_types_list(), validators=[Optional()])
     fiber_qty = IntegerField('%', validators=[Optional()])
 
 

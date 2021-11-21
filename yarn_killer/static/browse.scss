@@ -1,0 +1,23 @@
+@import "variables", "mixins";
+
+#yarn-grid-wrapper {
+    border: 2px $primary-accent-color solid;
+    #yarn-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        align-items: center;
+        justify-items: center;
+        margin: 30px;
+        gap: 20px;
+        border: 1px $secondary-accent-color solid;
+        .yarn-block {
+            margin: 10px;
+            padding: 10px;
+            text-align: center;
+            border: 1px $tertiary-accent-color solid;
+            a {
+                @include link-styles;
+            }
+        }
+    }
+}

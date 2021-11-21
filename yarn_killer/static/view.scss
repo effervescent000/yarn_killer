@@ -1,0 +1,44 @@
+@import "variables", "mixins";
+
+#yarn-info-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas: 
+        ". main .";
+    #yarn-info {
+        grid-area: main;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "image image"
+            "attributes stash"
+            "attributes store";
+        .image {
+            grid-area: image;
+        }
+        #attributes {
+            grid-area: attributes;
+            #name {
+                #brand-name {
+                    font-size: 2em;
+                }
+                #yarn-name {
+                    font-size: 1.5em;
+                }
+            }
+            .attribute {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                .label {
+                    color: $primary-accent-color;
+                }
+            }
+        }
+        #stash-info {
+            grid-area: stash;
+        }
+        #store-info {
+            grid-area: store;
+        }
+    }
+}

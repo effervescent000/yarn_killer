@@ -56,6 +56,7 @@ body #page-container #header #center-header #logo span {
 
 body #page-container #content-wrapper {
   margin: 150px 50px;
+  z-index: 1;
 }
 
 .nav-bar {

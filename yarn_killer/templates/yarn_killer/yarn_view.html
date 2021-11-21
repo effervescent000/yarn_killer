@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_field_no_label %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='view.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!-- starts in content-wrapper div -->
+    <div id="manage-wrapper">
+        <a href="{{ url_for('yarn.edit_yarn', id=yarn.id) }}">Edit me!</a>
+    </div>
+    <div id="yarn-info-wrapper">
+        <div id="yarn-info">
+            <div class="image">
+                Image goes here
+            </div>
+            <div id="attributes">
+                <div id="name">
+                    <span id="brand-name">{{ yarn.brand }}</span><br>
+                    <span id="yarn-name">{{ yarn.name }}</span>
+                </div>
+                <div class="attribute">
+                    <div class="label">Weight</div>
+                    <div class="value">{{ yarn.weight_name }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="label">Gauge</div>
+                    <div class="value">{{ yarn.gauge }} sts = 4"</div>
+                </div>
+                <div class="attribute">
+                    <div class="label">Yardage</div>
+                    <div class="value">{{ yarn.yardage }} yds</div>
+                </div>
+                <div class="attribute">
+                    <div class="label">Unit weight</div>
+                    <div class="value">{{ yarn.weight_grams }} g</div>
+                </div>
+                <div class="attribute">
+                    <div class="label">Fibers</div>
+                    {% for fiber in yarn.fibers %}
+                        <div class="value">{{ fiber.amount }}% {{ fiber.type }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div id="stash-info">
+                Nothing here yet
+            </div>
+            <div id="store-info">
+                Nothing here yet
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}

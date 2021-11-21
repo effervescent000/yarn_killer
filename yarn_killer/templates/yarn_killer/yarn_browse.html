@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_field_no_label %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='browse.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<!-- start in content-wrapper div -->
+    <div id="yarn-grid-wrapper">
+        <div id="yarn-grid">
+            {% for yarn in yarn_list %}
+                <div class="yarn-block">
+                    <a href="{{ url_for('yarn.view_yarn', id=yarn.id) }}">
+                        <span class="brand-name">{{ yarn.brand}}</span><br>
+                        <span class="yarn-name">{{ yarn.name }}</span><br>
+                    </a>
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+#yarn-info-wrapper {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: (1fr)[3];
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-areas: ". main .";
+}
+
+#yarn-info-wrapper #yarn-info {
+  -ms-grid-row: 1;
+  -ms-grid-column: 2;
+  grid-area: main;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: "image image" "attributes stash" "attributes store";
+}
+
+#yarn-info-wrapper #yarn-info .image {
+  -ms-grid-row: 1;
+  -ms-grid-column: 1;
+  -ms-grid-column-span: 2;
+  grid-area: image;
+}
+
+#yarn-info-wrapper #yarn-info #attributes {
+  -ms-grid-row: 2;
+  -ms-grid-row-span: 2;
+  -ms-grid-column: 1;
+  grid-area: attributes;
+}
+
+#yarn-info-wrapper #yarn-info #attributes #name #brand-name {
+  font-size: 2em;
+}
+
+#yarn-info-wrapper #yarn-info #attributes #name #yarn-name {
+  font-size: 1.5em;
+}
+
+#yarn-info-wrapper #yarn-info #attributes .attribute {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+}
+
+#yarn-info-wrapper #yarn-info #attributes .attribute .label {
+  color: #8B95C9;
+}
+
+#yarn-info-wrapper #yarn-info #stash-info {
+  -ms-grid-row: 2;
+  -ms-grid-column: 2;
+  grid-area: stash;
+}
+
+#yarn-info-wrapper #yarn-info #store-info {
+  -ms-grid-row: 3;
+  -ms-grid-column: 2;
+  grid-area: store;
+}
+/*# sourceMappingURL=view.css.map */
