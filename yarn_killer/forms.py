@@ -3,14 +3,15 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField
 from wtforms import PasswordField, SubmitField, SelectField, IntegerField, BooleanField, FormField, FieldList
-from wtforms.validators import InputRequired, Length, Email, EqualTo
+from wtforms.validators import InputRequired, Length, Email, EqualTo, Optional
 
 from .utils import get_yarn_weight_tuple, get_fiber_types_list
 
 
 class FiberForm(FlaskForm):
-    fiber_type = SelectField('Fiber', choices=get_fiber_types_list)
-    fiber_qty = IntegerField('%')
+    fiber_type = SelectField('Fiber', choices=get_fiber_types_list, validators=[Optional()])
+    fiber_qty = IntegerField('%', validators=[Optional()])
+
 
 class YarnForm(FlaskForm):
     brand_name = StringField('Brand', validators=[InputRequired()])

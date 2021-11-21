@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin&family=Marck+Script&display=swap" rel="stylesheet"> 
-    <link rel="stylesheet" href="../static/common.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
 </head>
 <body>
     <div id="page-container">
@@ -22,7 +22,7 @@
             </div>
             <div id="center-header">
                 <div id="logo">
-                    <img src="../static/assets/cat with yarn white.png" alt="Kitty!">
+                    <img src="{{ url_for('static', filename='assets/cat with yarn white.png') }}" alt="Kitty!">
                     <span id="logo-text">Yarn Killer!</span>
                 </div>
             </div>
@@ -38,6 +38,17 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+        <div id="flashed-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for message in messages %}
+                        <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
         </div>
         <div id="content-wrapper">
             {% block content %}{% endblock %}
