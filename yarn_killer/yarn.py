@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
+    Blueprint, current_app, flash, redirect, render_template, request, url_for
 )
 
 from .models import Yarn, Fiber, Store, Link
@@ -119,12 +119,16 @@ def populate_yarn(yarn, form):
 def populate_fibers(yarn, form):
     fibers = {}
     for fiber in form.fiber_type_list.entries:
-        if fiber.fiber_type.data != '':
+        if fiber.fiber_type.data != '' and fiber.fiber_type.data is not None:
             fibers[fiber.fiber_type.data] = fiber.fiber_qty.data
     if len(fibers) > 0:
-        for fiber_type, fiber_amount in fibers.items():
-            fiber_new = Fiber(yarn_id=yarn.id, type=fiber_type, amount=fiber_amount)
-            db.session.add(fiber_new)
-            db.session.commit()
+        if sum(fibers.values()) > 100:
+            if current_app.config.get('TESTING'):
+                print('Fiber total > 100%')
+            else:
+                flash('Fiber total > 100%')
+        else:
+            for fiber_type, fiber_amount in fibers.items():
+                yarn.add_fibers(fiber_type, fiber_amount)
     else:
         flash('The entered yarn has no fiber content.')

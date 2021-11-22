@@ -35,7 +35,6 @@ class Yarn(db.Model):
     name = db.Column(db.String(200), nullable=False)
     weight_name = db.Column(db.String(50))
     gauge = db.Column(db.Integer)
-    # yardage is, obviously, in yards
     yardage = db.Column(db.Integer)
     weight_grams = db.Column(db.Integer)
     discontinued = db.Column(db.Boolean, default=False)
@@ -46,6 +45,14 @@ class Yarn(db.Model):
 
     def __repr__(self):
         return f'<Yarn {self.brand} {self.name}>'
+
+    def add_fibers(self, fiber_type, fiber_amount):
+        total_fibers = 0
+        for x in self.fibers:
+            total_fibers += x.amount
+        if total_fibers + fiber_amount <= 100:
+            db.session.add(Fiber(yarn_id=self.id, type=fiber_type, amount=fiber_amount))
+            db.session.commit()
 
 
 class Fiber(db.Model):

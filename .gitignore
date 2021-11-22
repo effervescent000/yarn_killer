@@ -135,3 +135,5 @@ yarn_killer/static/*.map
 yarn_killer/yarnkiller.sqlite
 /alembic
 alembic.ini
+.vscode/settings.json
+yarn_killer/test_database.sqlite
