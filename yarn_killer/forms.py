@@ -2,7 +2,7 @@ from flask import Flask
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from wtforms import StringField
-from wtforms import PasswordField, SubmitField, SelectField, IntegerField, BooleanField, FormField, FieldList
+from wtforms import PasswordField, SubmitField, SelectField, IntegerField, BooleanField, FormField, FieldList, URLField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, Optional
 
 from .utils import get_yarn_weight_tuple, get_fiber_types_list
@@ -23,6 +23,11 @@ class YarnForm(FlaskForm):
     discontinued = BooleanField('Discontinued?')
     fiber_type_list = FieldList(FormField(FiberForm), min_entries=5)
 
+    submit = SubmitField('Submit')
+
+
+class AddLinkForm(FlaskForm):
+    url = URLField('URL', validators=[InputRequired()])
     submit = SubmitField('Submit')
 
 # user/login-related forms

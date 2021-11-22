@@ -59,6 +59,10 @@ body {
   }
 }
 
+a {
+  @include link-styles;
+}
+
 .NYI {
   text-decoration: line-through !important;
 }

@@ -75,6 +75,15 @@ body #page-container #content-wrapper {
   text-decoration: underline;
 }
 
+a {
+  color: #BAD7F2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 .NYI {
   text-decoration: line-through !important;
 }

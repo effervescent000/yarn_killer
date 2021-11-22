@@ -47,7 +47,12 @@
                 Nothing here yet
             </div>
             <div id="store-info">
-                Nothing here yet
+                {% for link in yarn.links %}
+                    <div class="store-link">
+                        Buy me at <a href="{{ link.url }}">{{ link.store.name }}</a>
+                    </div>
+                {% endfor %}
+                <a href="{{ url_for('yarn.add_link', id=yarn.id) }}">Add a link</a>
             </div>
         </div>
     </div>

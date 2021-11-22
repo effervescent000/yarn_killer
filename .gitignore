@@ -133,3 +133,5 @@ dmypy.json
 config.py
 yarn_killer/static/*.map
 yarn_killer/yarnkiller.sqlite
+/alembic
+alembic.ini

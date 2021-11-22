@@ -46,7 +46,7 @@ class Yarn(db.Model):
 
     def __repr__(self):
         return f'<Yarn {self.brand} {self.name}>'
-    
+
 
 class Fiber(db.Model):
     __tablename__ = 'fibers'
@@ -85,9 +85,12 @@ class Stock(db.Model):
 class Store(db.Model):
     __tablename__ = 'stores'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(200), nullable=False, unique=True)
     links = db.relationship('Link', backref='store', lazy=True, cascade='all, delete-orphan')
     yarns = db.relationship('Yarn', secondary=stores_table, back_populates='stores')
+
+    def __repr__(self):
+        return f'<Store {self.name}>'
 
 
 class Link(db.Model):
@@ -98,3 +101,6 @@ class Link(db.Model):
     yarn_id = db.Column(db.Integer, db.ForeignKey('yarn.id'))
     current_price = db.Column(db.Float)
     price_updated = db.Column(db.DateTime)
+
+    def update_price(self):
+        pass
