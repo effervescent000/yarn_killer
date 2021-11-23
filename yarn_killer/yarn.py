@@ -13,13 +13,22 @@ def browse():
     yarn_list = Yarn.query.all()
     return render_template('yarn_killer/yarn_browse.html', yarn_list=yarn_list)
 
+@bp.route('/link_<id>/update')
+def update_price(id):
+    link = Link.query.get(id)
+    link.update_price()
+    return redirect(url_for('yarn.view_yarn', id=link.yarn_id))
 
 @bp.route('/<id>')
 def view_yarn(id):
     yarn = Yarn.query.get(id)
     store_dict = {}
     for link in yarn.links:
-        store_dict[link.url] = Store.query.get(link.store_id).name
+        if link.store_id is None:
+            db.session.delete(link)
+            db.session.commit()
+        else:
+            store_dict[link.url] = Store.query.get(link.store_id).name
     return render_template('yarn_killer/yarn_view.html', yarn=yarn, store_dict=store_dict)
 
 
@@ -101,6 +110,12 @@ def parse_name_from_url(link):
         return 'Yarnspirations'
     elif 'www.michaels.com' in link:
         return 'Michaels'
+    elif 'www.lovecrafts.com' in link:
+        return 'LoveCrafts'
+    elif 'www.motherofpurlyarn.com' in link:
+        return 'Mother of Purl'
+    elif 'www.lionbrand.com' in link:
+        return 'Lion Brand'
     else:
         flash('Invalid link passed to parse_name_from_url')
         return None

@@ -1,5 +1,9 @@
 from flask_login import UserMixin
+from selenium.webdriver.chrome import options
 from werkzeug.security import generate_password_hash, check_password_hash
+from selenium.webdriver import Firefox
+from selenium.webdriver.firefox.options import Options
+from datetime import datetime
 
 from . import db
 
@@ -110,4 +114,38 @@ class Link(db.Model):
     price_updated = db.Column(db.DateTime)
 
     def update_price(self):
-        pass
+        opts = Options()
+        options.headless = True
+        browser = Firefox(options=opts)
+        browser.get(self.url)
+        price = None
+        if self.store.name == 'Michaels':
+            price_list = browser.find_elements_by_class_name('product-sales-price  ')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('From: $')
+            price = price.strip('$')
+        elif self.store.name == 'Yarnspirations':
+            price_list = browser.find_elements_by_class_name('price-sales')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('Sale Price').strip().strip('$')
+        elif self.store.name == 'Joann':
+            price_list = browser.find_elements_by_class_name('value')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('$')
+        elif self.store.name == 'LoveCrafts':
+            price_list = browser.find_elements_by_class_name('price')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('$')
+        elif self.store.name == 'Mother of Purl':
+            price_list = browser.find_elements_by_class_name('product-price-minimum')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('$')
+        elif self.store.name == 'Lion Brand':
+            price_list = browser.find_elements_by_class_name('Price')
+            price_list = [x.text.strip() for x in price_list if x.text.strip() != '']
+            price = price_list[0].strip('$')
+        if price is not None:
+            self.current_price = float(price)
+            self.price_updated = datetime.now()
+            db.session.commit()
+        browser.close()
