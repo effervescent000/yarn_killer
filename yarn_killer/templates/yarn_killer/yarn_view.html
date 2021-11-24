@@ -47,7 +47,7 @@
                 Nothing here yet
             </div>
             <div id="store-info">
-                {% for link in yarn.links %}
+                {% for link in sorted_links %}
                     <div class="store-link">
                         Buy at <a href="{{ link.url }}">{{ link.store.name }}</a> for ${{link.current_price}} (<a href="{{ url_for('yarn.update_price', id=link.id) }}">Update price</a>)
                     </div>

@@ -22,20 +22,18 @@ def update_price(id):
 @bp.route('/<id>')
 def view_yarn(id):
     yarn = Yarn.query.get(id)
-    store_dict = {}
+    # store_dict = {}
+    sorted_links = sorted(yarn.links, key=lambda link: link.current_price)
     for link in yarn.links:
         if link.store_id is None:
             db.session.delete(link)
             db.session.commit()
-        else:
-            store_dict[link.url] = Store.query.get(link.store_id).name
-    return render_template('yarn_killer/yarn_view.html', yarn=yarn, store_dict=store_dict)
+    return render_template('yarn_killer/yarn_view.html', yarn=yarn, sorted_links=sorted_links)
 
 
 @bp.route('/<id>/edit', methods=('GET', 'POST'))
 def edit_yarn(id):
     if id == 'new':
-        # create a new empty form
         form = YarnForm()
         if form.validate_on_submit():
             existing_yarn = Yarn.query.filter_by(brand=form.brand_name.data, name=form.yarn_name.data).first()
@@ -72,6 +70,26 @@ def edit_yarn(id):
 
 @bp.route('/<id>/add_link', methods=('POST', 'GET'))
 def add_link(id):
+    def parse_name_from_url(link):
+        if 'www.joann.com' in link:
+            return 'Joann'
+        elif 'www.yarnspirations.com' in link:
+            return 'Yarnspirations'
+        elif 'www.michaels.com' in link:
+            return 'Michaels'
+        elif 'www.lovecrafts.com' in link:
+            return 'LoveCrafts'
+        elif 'www.motherofpurlyarn.com' in link:
+            return 'Mother of Purl'
+        elif 'www.lionbrand.com' in link:
+            return 'Lion Brand'
+        elif 'www.yarn.com' in link:
+            return 'WEBS'
+        else:
+            flash('Invalid link passed to parse_name_from_url')
+            return None
+
+
     yarn = Yarn.query.get(id)
     form = AddLinkForm()
     if form.validate_on_submit():
@@ -103,24 +121,7 @@ def add_link(id):
             return redirect(url_for('yarn.view_yarn', id=yarn.id))
     return render_template('yarn_killer/add_link.html', yarn=yarn, form=form)
 
-def parse_name_from_url(link):
-    if 'www.joann.com' in link:
-        return 'Joann'
-    elif 'www.yarnspirations.com' in link:
-        return 'Yarnspirations'
-    elif 'www.michaels.com' in link:
-        return 'Michaels'
-    elif 'www.lovecrafts.com' in link:
-        return 'LoveCrafts'
-    elif 'www.motherofpurlyarn.com' in link:
-        return 'Mother of Purl'
-    elif 'www.lionbrand.com' in link:
-        return 'Lion Brand'
-    elif 'www.yarn.com' in link:
-        return 'WEBS'
-    else:
-        flash('Invalid link passed to parse_name_from_url')
-        return None
+
 
 def populate_yarn(yarn, form):
     yarn.brand = form.brand_name.data
