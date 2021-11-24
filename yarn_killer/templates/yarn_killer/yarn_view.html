@@ -38,9 +38,11 @@
                 </div>
                 <div class="attribute">
                     <div class="label">Fibers</div>
-                    {% for fiber in yarn.fibers %}
-                        <div class="value">{{ fiber.amount }}% {{ fiber.type }}</div>
-                    {% endfor %}
+                    <div class="multi-attribute">
+                        {% for fiber in yarn.fibers %}
+                            <div class="value">{{ fiber.amount }}% {{ fiber.type }}</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             <div id="stash-info">
