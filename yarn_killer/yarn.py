@@ -116,6 +116,8 @@ def parse_name_from_url(link):
         return 'Mother of Purl'
     elif 'www.lionbrand.com' in link:
         return 'Lion Brand'
+    elif 'www.yarn.com' in link:
+        return 'WEBS'
     else:
         flash('Invalid link passed to parse_name_from_url')
         return None
