@@ -23,7 +23,14 @@ def update_price(id):
 def view_yarn(id):
     yarn = Yarn.query.get(id)
     # store_dict = {}
-    sorted_links = sorted(yarn.links, key=lambda link: link.current_price)
+    sorted_links = []
+    try:
+        sorted_links = sorted(yarn.links, key=lambda link: link.current_price)
+    except TypeError:
+        for link in yarn.links:
+            if link.current_price is None:
+                link.update_price()
+        sorted_links = sorted(yarn.links, key=lambda link: link.current_price)
     for link in yarn.links:
         if link.store_id is None:
             db.session.delete(link)
@@ -120,6 +127,7 @@ def add_link(id):
                 if store_query not in yarn.stores:
                     yarn.stores.append(store_query)
                 db.session.commit()
+            link.update_price()
             return redirect(url_for('yarn.view_yarn', id=yarn.id))
     return render_template('yarn_killer/add_link.html', yarn=yarn, form=form)
 
