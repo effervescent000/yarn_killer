@@ -50,6 +50,7 @@ class Yarn(db.Model):
     fibers = db.relationship('Fiber', backref='yarn', lazy=True, cascade='all, delete-orphan')
     links = db.relationship('Link', backref='yarn', lazy=True, cascade='all, delete-orphan')
     stores = db.relationship('Store', secondary=stores_table, back_populates='yarns')
+    colorways = db.relationship('Colorway', backref='yarn', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Yarn {self.brand} {self.name}>'
@@ -72,6 +73,21 @@ class Fiber(db.Model):
 
     def __repr__(self):
         return f'<Fiber content {self.amount}% {self.type}>'
+
+
+class Colorway(db.Model):
+    __tablename__ = 'colorways'
+    id = db.Column(db.Integer, primary_key=True)
+    yarn_id = db.Column(db.Integer, db.ForeignKey('yarn.id'))
+    # name is the actual name of the colorway, ie "Lavender Field" or some shit
+    name = db.Column(db.String(200), nullable=False)
+    # value is the stripped down version, ie "lavender field"
+    value = db.Column(db.String(200), nullable=False)
+    # color is a String describing the color, ie "purple"
+    color = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self):
+        return f'<Colorway {self.name} of {self.yarn.brand} {self.yarn.name}>'
 
 
 class Stash(db.Model):

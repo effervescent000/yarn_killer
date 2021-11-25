@@ -4,3 +4,7 @@ def get_yarn_weight_tuple():
 
 def get_fiber_types_list():
     return sorted(['Acrylic', 'Cotton', 'Wool', 'Polyester', 'Silk', 'Bamboo', 'Nylon', 'Rayon', 'Tencel', 'Alpaca', 'Other', 'Cashmere', ''])
+
+
+def format_name(name):
+    return name.lower().replace('-', ' ').replace('_', ' ')
