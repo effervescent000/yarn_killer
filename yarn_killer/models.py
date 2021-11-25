@@ -139,6 +139,8 @@ class Link(db.Model):
             price = soup.find('span', 'price').text.strip('$')
         elif self.store.name == 'WEBS':
             price = soup.find('span', 'product-prices__sell-price').text.strip().strip('$')
+        elif self.store.name == 'Kraemer':
+            price = soup.find('span', 'current-price').text.strip('$')
         
         if price is not None:
             self.current_price = float(price)

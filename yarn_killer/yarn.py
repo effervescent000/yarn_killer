@@ -85,6 +85,8 @@ def add_link(id):
             return 'Lion Brand'
         elif 'www.yarn.com' in link:
             return 'WEBS'
+        elif 'patternsbykraemer.com' in link:
+            return 'Kraemer'
         else:
             flash('Invalid link passed to parse_name_from_url')
             return None
