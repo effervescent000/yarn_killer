@@ -23,8 +23,8 @@ def create_app(test_config=None):
     login_manager.init_app(app)
 
     with app.app_context():
-        from .models import User, Yarn, Fiber, Stash, Stock, Link, Store
-        db.create_all()
+        # from .models import User, Yarn, Fiber, Stash, Stock, Link, Store
+        # db.create_all()
 
         from . import index
         app.register_blueprint(index.bp)

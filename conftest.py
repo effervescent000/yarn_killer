@@ -22,11 +22,15 @@ def app():
 
     with app.app_context():
         db.init_app(app)
+        from yarn_killer.models import User, Yarn, Fiber, Stash, Stock, Link, Store
+        db.create_all()
+        
         populate_test_data()
 
         yield app
 
         db.drop_all()
+
 
 @pytest.fixture
 def client(app):
