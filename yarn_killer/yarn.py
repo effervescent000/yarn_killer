@@ -22,7 +22,6 @@ def update_price(id):
 @bp.route('/<id>')
 def view_yarn(id):
     yarn = Yarn.query.get(id)
-    # store_dict = {}
     sorted_links = []
     try:
         sorted_links = sorted(yarn.links, key=lambda link: link.current_price)
@@ -35,7 +34,14 @@ def view_yarn(id):
         if link.store_id is None:
             db.session.delete(link)
             db.session.commit()
-    return render_template('yarn_killer/yarn_view.html', yarn=yarn, sorted_links=sorted_links)
+    return render_template('yarn_killer/yarn_view.html', yarn=yarn, sorted_links=sorted_links, colorway_count=len(yarn.colorways))
+
+
+@bp.route('/make_colorways/<id>', methods=['GET', 'POST'])
+def make_colorways(id):
+    for link in Yarn.query.get(id).links:
+        link.extract_colorways()
+    return redirect(url_for('yarn.view_yarn', id=link.yarn_id))
 
 
 @bp.route('/<id>/edit', methods=('GET', 'POST'))

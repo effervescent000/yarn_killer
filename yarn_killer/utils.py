@@ -7,4 +7,7 @@ def get_fiber_types_list():
 
 
 def format_name(name):
-    return name.lower().replace('-', ' ').replace('_', ' ')
+    label = name.replace('-', ' ').replace('_', ' ').strip()
+    value = label.lower().replace("'", '') 
+
+    return (label, value)

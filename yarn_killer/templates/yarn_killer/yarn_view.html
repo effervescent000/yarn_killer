@@ -44,6 +44,13 @@
                         {% endfor %}
                     </div>
                 </div>
+                <div class="attribute">
+                    <div class="label">Known colors</div>
+                    <div class="value">
+                        {{ colorway_count }} 
+                        <a href="{{ url_for('yarn.make_colorways', id=yarn.id) }}">Update</a>
+                    </div>
+                </div>
             </div>
             <div id="stash-info">
                 Nothing here yet

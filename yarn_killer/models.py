@@ -11,6 +11,8 @@ from datetime import datetime
 
 from . import db
 
+from .utils import format_name
+
 
 stores_table = db.Table('store_table',
     db.Column('yarn_id', db.Integer, db.ForeignKey('yarn.id'), primary_key=True),
@@ -165,3 +167,19 @@ class Link(db.Model):
         else:
             print('OOPS NO DATA')
         
+
+    def extract_colorways(self):
+        soup = BeautifulSoup(requests.get(self.url).text, 'html.parser')
+        color_labels = set()
+        if self.store.name == 'Michaels':
+            colors = [x.text for x in soup.find_all('span', 'color_label')]
+            for x in colors:
+                color_labels.add(format_name(x))
+        
+        for x in color_labels:
+            if Colorway.query.filter_by(value=x[1]).first() is None:
+                colorway = Colorway(yarn_id=self.yarn_id, name=x[0], value=x[1], color='blank for now')
+                db.session.add(colorway)
+                db.session.commit()
+                
+                
