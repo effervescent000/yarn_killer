@@ -137,3 +137,4 @@ yarn_killer/yarnkiller.sqlite
 alembic.ini
 .vscode/settings.json
 yarn_killer/test_database.sqlite
+.vscode/launch.json

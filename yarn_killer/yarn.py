@@ -10,8 +10,7 @@ bp = Blueprint('yarn', __name__, url_prefix='/yarn')
 
 @bp.route('/browse')
 def browse():
-    yarn_list = Yarn.query.all()
-    return render_template('yarn_killer/yarn_browse.html', yarn_list=yarn_list)
+    return render_template('yarn_killer/yarn_browse.html', yarn_list=Yarn.query.all())
 
 @bp.route('/link_<id>/update')
 def update_price(id):

@@ -1,0 +1,11 @@
+@import "variables", "mixins";
+
+#colorways-list-wrapper {
+    width: 50%;
+    #colorways-list {
+        .yarn-colorways {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+}

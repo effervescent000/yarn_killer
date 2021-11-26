@@ -1,0 +1,11 @@
+#colorways-list-wrapper {
+  width: 50%;
+}
+
+#colorways-list-wrapper #colorways-list .yarn-colorways {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+}
+/*# sourceMappingURL=colorways.css.map */

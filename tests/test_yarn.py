@@ -41,3 +41,16 @@ def test_populate_fibers(client, app, fiber_dict):
                 total_fiber_count += fiber.amount
             assert total_fiber_count <= 100
             # assert sum(x.fibers.amount for x.fibers.amount in x.fibers) <= 100
+    
+
+@pytest.mark.parametrize('yarn_id,new_name', [
+    (1, 'Simply Soft Solids'),
+    (4, '')
+])
+def test_edit_yarn(client, yarn_id, new_name): # TODO add fiber editing
+    assert client.get(f'yarn/{yarn_id}/edit').status_code == 200
+    assert client.get(f'yarn/new/edit').status_code == 200
+
+
+def test_edit_yarn_validation(client):
+    pass

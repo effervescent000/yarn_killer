@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% from "_formhelpers.html" import render_field, render_field_no_label %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='colorways.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- starts in the content-wrapper div -->
+    <div id="colorways-list-wrapper">
+        <span id="colorways-header">Colorways <a href="{{ url_for('colorway.update', id='all') }}">Update all</a></span>
+        <div id="colorways-list">
+            {% for yarn in yarn_list %}
+                <div class="yarn-colorways">
+                    <div class="yarn-side">
+                        <span class="brand-name">{{ yarn.brand }}</span>
+                        <span class="yarn-name">{{ yarn.name }}</span>
+                        <a href="{{url_for('colorway.update', id=yarn.id)}}">Update me</a>
+                    </div>
+                    <div class="colorway-side">
+                        {% for colorway in yarn.colorways %}
+                            <div class="colorway">
+                                <span class="colorway-name">{{ colorway.name }}</span>
+                                <span class="colorway-color">({{ colorway.color }})</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

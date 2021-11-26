@@ -1,0 +1,17 @@
+red,#de2828,222,40,40
+yellow,#ffff00,255,255,0
+orange,#FF7F50,255,127,80
+dark blue,#000080,0,0,128
+blue,#0000ff,0,0,255
+light blue,#57a5e6,87,165,230
+purple,#a142f5,161,66,245
+lavender,#E6E6FA,230,230,250
+magenta,#FF00FF,255,0,255
+pink,#FF69B4,255,105,180
+light green,#00FF00,0,255,0
+dark green,#006400,0,100,0
+brown,#6e300c,110,48,12
+gray,#808080,128,128,128
+white,#ffffff,255,255,255
+beige,#F5F5DC,245,245,220
+black,#000000,0,0,0

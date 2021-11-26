@@ -36,4 +36,7 @@ def create_app(test_config=None):
         from . import auth
         app.register_blueprint(auth.bp)
 
+        from . import colorway
+        app.register_blueprint(colorway.bp)
+
         return app

@@ -5,6 +5,10 @@ from selenium.webdriver.firefox.options import Options
 import requests
 from bs4 import BeautifulSoup
 
+from pandas import read_csv
+import cv2 as cv
+import numpy as np
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -13,6 +17,9 @@ from . import db
 
 from .utils import format_name
 
+
+# color_indices = ['color_name', 'hex', 'r', 'g', 'b']
+# color_csv = read_csv('colordata.csv', names=color_indices, header=None)
 
 stores_table = db.Table('store_table',
     db.Column('yarn_id', db.Integer, db.ForeignKey('yarn.id'), primary_key=True),
@@ -168,18 +175,54 @@ class Link(db.Model):
             print('OOPS NO DATA')
         
 
-    def extract_colorways(self):
+    def extract_colorways(self, recheck=False):
+        color_indices = ['color_name', 'hex', 'r', 'g', 'b']
+        color_csv = read_csv('colordata.csv', names=color_indices, header=None)
+
+        def get_color(image):
+            b, g, r, _ = cv.mean(image)
+            
+            minimum = 10000
+            color_name = None
+            for i in range(len(color_csv)):
+                distance = abs(r - int(color_csv.loc[i, 'r'])) + abs(g - int(color_csv.loc[i, 'g'])) + abs(b - int(color_csv.loc[i, 'b']))
+                if distance < minimum:
+                    minimum = distance
+                    color_name = color_csv.loc[i, 'color_name']
+            return color_name
+
+
         soup = BeautifulSoup(requests.get(self.url).text, 'html.parser')
-        color_labels = set()
+        color_labels = {}
         if self.store.name == 'Michaels':
-            colors = [x.text for x in soup.find_all('span', 'color_label')]
+            # colors = [x.text for x in soup.find_all('span', 'color_label')]
+            # for x in colors:
+            #     color_labels.add(format_name(x))
+            colors = [x for x in soup.find_all('li', 'emptyswatch')]
+            # for x in colors:
+            #     color_labels[format_name(x.contents[1].contents[1]['title'])] = x.contents[1].contents[1]['src']
             for x in colors:
-                color_labels.add(format_name(x))
-        
-        for x in color_labels:
-            if Colorway.query.filter_by(value=x[1]).first() is None:
-                colorway = Colorway(yarn_id=self.yarn_id, name=x[0], value=x[1], color='blank for now')
+                title = None
+                src = None
+                for y in x.contents:
+                    if y.name == 'a':
+                        for z in y.contents:
+                            if z.name == 'img':
+                                title = z['title']
+                                src = z['src']
+                                break
+                if title is not None and src is not None:
+                    color_labels[format_name(title)] = src
+
+        for color_name, image_src in color_labels.items():
+            colorway = Colorway.query.filter_by(value=color_name[1]).first()
+            image = np.asarray(np.bytearray(requests.get(image_src, stream=True).raw.read()), dtype='uint8')
+            image_data = cv.imdecode(image, cv.IMREAD_COLOR)
+            if colorway is None:
+                colorway = Colorway(yarn_id=self.yarn_id, name=color_name[0], value=color_name[1], color=get_color(image_data))
                 db.session.add(colorway)
                 db.session.commit()
-                
-                
+            elif recheck:
+                colorway.color = get_color(image_data)
+                db.session.commit()
+            
