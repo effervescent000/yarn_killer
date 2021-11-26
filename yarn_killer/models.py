@@ -176,12 +176,21 @@ class Link(db.Model):
         
 
     def extract_colorways(self, recheck=False):
-        color_indices = ['color_name', 'hex', 'r', 'g', 'b']
+        color_indices = ['true_color', 'color_name', 'hex', 'r', 'g', 'b']
         color_csv = read_csv('colordata.csv', names=color_indices, header=None)
 
         def get_color(image):
-            b, g, r, _ = cv.mean(image)
+            # b, g, r, _ = cv.mean(image)
             
+            image_data = np.reshape(image, (-1,3))
+            image_data = np.float32(image_data)
+
+            criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+            flags = cv.KMEANS_RANDOM_CENTERS
+            _, _, centers = cv.kmeans(image_data, 1, None, criteria, 10, flags)
+            # print(f'I think the dominant color is (bgr) {centers[0].astype(np.int32)}')
+            b, g, r = centers[0].astype(np.int32)
+            # print(f'{r} {g} {b}')
             minimum = 10000
             color_name = None
             for i in range(len(color_csv)):
@@ -216,7 +225,7 @@ class Link(db.Model):
 
         for color_name, image_src in color_labels.items():
             colorway = Colorway.query.filter_by(value=color_name[1]).first()
-            image = np.asarray(np.bytearray(requests.get(image_src, stream=True).raw.read()), dtype='uint8')
+            image = np.asarray(bytearray(requests.get(image_src, stream=True).raw.read()), dtype='uint8')
             image_data = cv.imdecode(image, cv.IMREAD_COLOR)
             if colorway is None:
                 colorway = Colorway(yarn_id=self.yarn_id, name=color_name[0], value=color_name[1], color=get_color(image_data))
