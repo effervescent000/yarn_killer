@@ -37,20 +37,20 @@
                     <div class="value">{{ yarn.weight_grams }} g</div>
                 </div>
                 <div class="attribute">
-                    <div class="label">Fibers</div>
-                    <div class="multi-attribute">
-                        {% for fiber in yarn.fibers %}
-                            <div class="value">{{ fiber.amount }}% {{ fiber.type }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="attribute">
                     <div class="label">Texture</div>
                     <div class="value">{{ yarn.texture }}</div>
                 </div>
                 <div class="attribute">
                     <div class="label">Color style</div>
                     <div class="value">{{ yarn.color_style }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="label">Fibers</div>
+                    <div class="multi-attribute">
+                        {% for fiber in yarn.fibers %}
+                            <div class="value">{{ fiber.amount }}% {{ fiber.type }}</div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="attribute">
                     <div class="label">Known colors</div>

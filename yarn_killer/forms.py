@@ -21,7 +21,7 @@ class YarnForm(FlaskForm):
     yardage = IntegerField('Yardage', validators=[InputRequired()])
     weight_grams = IntegerField('Weight in grams', validators=[InputRequired()])
     texture = SelectField('Texture', choices=get_texture_list())
-    color_styles = SelectField('Color style', choices=get_color_styles_list())
+    color_style = SelectField('Color style', choices=get_color_styles_list())
     discontinued = BooleanField('Discontinued?')
     fiber_type_list = FieldList(FormField(FiberForm), min_entries=5)
 

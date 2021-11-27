@@ -68,9 +68,11 @@ def edit_yarn(id):
             gauge=yarn.gauge, 
             yardage=yarn.yardage,
             weight_grams=yarn.weight_grams,
+            texture=yarn.texture,
+            color_style=yarn.color_style,
             discontinued=yarn.discontinued
         )
-        for i in range(len(yarn.fibers) - 1):
+        for i in range(len(yarn.fibers)):
             form.fiber_type_list[i].fiber_type.data = yarn.fibers[i].type
             form.fiber_type_list[i].fiber_qty.data = yarn.fibers[i].amount
         if form.validate_on_submit():
@@ -145,6 +147,8 @@ def populate_yarn(yarn, form):
     yarn.gauge = form.gauge.data
     yarn.yardage = form.yardage.data
     yarn.weight_grams = form.weight_grams.data
+    yarn.texture = form.texture.data
+    yarn.color_style = form.color_style.data
     yarn.discontinued = form.discontinued.data
     db.session.add(yarn)
     db.session.commit()
