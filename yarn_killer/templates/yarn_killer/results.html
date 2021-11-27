@@ -21,19 +21,5 @@
                 {% endfor %}
             </div>
         </div>
-        <div id="filters-wrapper">
-            <form method="post">
-                {{ form.hidden_tag() }}
-                {{ render_field(form.brand_name) }}<br>
-                {{ render_field(form.yarn_name) }}<br>
-                {{ render_field(form.weight_name) }}<br>
-                {{ render_field(form.gauge_integer) }} {{ render_field(form.gauge_approx) }}<br>
-                <!-- not including yardage and weight in here rn -->
-                {{ render_field(form.texture) }}<br>
-                {{ render_field(form.color_style) }}<br>
-                {{ render_field(form.fiber_types) }}<br>
-                {{ render_field_no_label(form.submit) }}
-            </form>
-        </div>
     </div>
 {% endblock %}
