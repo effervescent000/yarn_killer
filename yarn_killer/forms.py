@@ -5,7 +5,7 @@ from wtforms import StringField
 from wtforms import PasswordField, SubmitField, SelectField, IntegerField, BooleanField, FormField, FieldList, URLField
 from wtforms.validators import InputRequired, Length, Email, EqualTo, Optional
 
-from .utils import get_yarn_weight_tuple, get_fiber_types_list
+from .utils import get_color_styles_list, get_texture_list, get_yarn_weight_tuple, get_fiber_types_list
 
 
 class FiberForm(FlaskForm):
@@ -20,6 +20,8 @@ class YarnForm(FlaskForm):
     gauge = IntegerField('Gauge', validators=[InputRequired()])
     yardage = IntegerField('Yardage', validators=[InputRequired()])
     weight_grams = IntegerField('Weight in grams', validators=[InputRequired()])
+    texture = SelectField('Texture', choices=get_texture_list())
+    color_styles = SelectField('Color style', choices=get_color_styles_list())
     discontinued = BooleanField('Discontinued?')
     fiber_type_list = FieldList(FormField(FiberForm), min_entries=5)
 

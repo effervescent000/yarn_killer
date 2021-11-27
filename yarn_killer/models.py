@@ -15,11 +15,22 @@ from datetime import datetime
 
 from . import db
 
-from .utils import format_name
+from .utils import format_name, get_texture_list, get_color_styles_list
 
-
-# color_indices = ['color_name', 'hex', 'r', 'g', 'b']
-# color_csv = read_csv('colordata.csv', names=color_indices, header=None)
+colors_dict = {
+    'denim': ['blue'],
+    'forest': ['green', 'blue-green', 'yellow-green'],
+    'gold': ['yellow, orange'],
+    'grass': ['green'],
+    'pearl': ['white'],
+    'pine': ['green'],
+    'rose': ['red', 'pink'],
+    'sage': ['green'],
+    'sky': ['blue'],
+    'tangerine': ['orange'],
+    'teal': ['blue-green'],
+    'wine': ['red', 'purple', 'purple-red'],
+}
 
 stores_table = db.Table('store_table',
     db.Column('yarn_id', db.Integer, db.ForeignKey('yarn.id'), primary_key=True),
@@ -54,6 +65,8 @@ class Yarn(db.Model):
     gauge = db.Column(db.Integer)
     yardage = db.Column(db.Integer)
     weight_grams = db.Column(db.Integer)
+    texture = db.Column(db.String(100))
+    color_style = db.Column(db.String(100))
     discontinued = db.Column(db.Boolean, default=False)
     
     fibers = db.relationship('Fiber', backref='yarn', lazy=True, cascade='all, delete-orphan')
@@ -98,6 +111,26 @@ class Colorway(db.Model):
     def __repr__(self):
         return f'<Colorway {self.name} of {self.yarn.brand} {self.yarn.name}>'
 
+
+    def sanity_check_colors(self):
+        for k, v in colors_dict.items():
+            if k in self.value:
+                result = False
+                for x in v:
+                    if x == self.color:
+                        result = True
+                if result is False:
+                    print(f'{self.name} is an unexpected color ({self.color})')
+
+
+        # def check_color(color_str):
+        #     if color_str in self.value and color_str not in self.color:
+        #         print(f'{self.value} has been assigned the color {self.color}, maybe check that?')
+        #     if 'gold' in self.value 
+
+        
+        # for x in ['red', 'yellow', 'purple', 'blue', 'green', 'pink', 'brown', 'orange']:
+        #     check_color(x)
 
 class Stash(db.Model):
     __tablename__ = 'stashes'
@@ -229,9 +262,11 @@ class Link(db.Model):
             image_data = cv.imdecode(image, cv.IMREAD_COLOR)
             if colorway is None:
                 colorway = Colorway(yarn_id=self.yarn_id, name=color_name[0], value=color_name[1], color=get_color(image_data))
+                colorway.sanity_check_colors()
                 db.session.add(colorway)
                 db.session.commit()
             elif recheck:
                 colorway.color = get_color(image_data)
+                colorway.sanity_check_colors()
                 db.session.commit()
             
