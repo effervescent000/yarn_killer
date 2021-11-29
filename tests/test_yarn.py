@@ -45,11 +45,25 @@ def test_populate_fibers(client, app, fiber_dict):
 
 @pytest.mark.parametrize('yarn_id,new_name', [
     (1, 'Simply Soft Solids'),
-    (4, '')
 ])
 def test_edit_yarn(client, yarn_id, new_name): # TODO add fiber editing
     assert client.get(f'yarn/{yarn_id}/edit').status_code == 200
     assert client.get(f'yarn/new/edit').status_code == 200
+
+    data = {
+        'brand_name': 'Caron', 
+        'yarn_name': new_name, 
+        'weight_name': 'Thread', 
+        'gauge': 18, 
+        'yardage': 200, 
+        'weight_grams': 200, 
+        'texture': 'Single-ply', 
+        'color_style': 'Solid'
+    }
+    client.post(f'yarn/{yarn_id}/edit', data=data)
+    yarn = Yarn.query.get(yarn_id)
+    assert yarn.name == new_name
+    assert yarn.texture == 'Single-ply'
 
 
 def test_edit_yarn_validation(client):

@@ -48,6 +48,7 @@ def update_price(id):
     link.update_price()
     return redirect(url_for('yarn.view_yarn', id=link.yarn_id))
 
+
 @bp.route('/<id>')
 def view_yarn(id):
     yarn = Yarn.query.get(id)
@@ -180,7 +181,8 @@ def populate_yarn(yarn, form):
     yarn.texture = form.texture.data
     yarn.color_style = form.color_style.data
     yarn.discontinued = form.discontinued.data
-    db.session.add(yarn)
+    if Yarn.query.get(yarn.id) is None:
+        db.session.add(yarn)
     db.session.commit()
 
 def populate_fibers(yarn, form):
