@@ -1,11 +1,20 @@
 #colorways-list-wrapper {
-  width: 50%;
+  width: 60%;
+}
+
+#colorways-list-wrapper #colorways-list {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr;
+      grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 #colorways-list-wrapper #colorways-list .yarn-colorways {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  -ms-grid-columns: 1fr 2fr;
+      grid-template-columns: 1fr 2fr;
+  gap: 10px;
 }
 /*# sourceMappingURL=colorways.css.map */

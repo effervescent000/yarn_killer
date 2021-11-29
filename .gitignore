@@ -138,3 +138,4 @@ alembic.ini
 .vscode/settings.json
 yarn_killer/test_database.sqlite
 .vscode/launch.json
+colordata backup.csv

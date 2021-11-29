@@ -1,11 +1,15 @@
 @import "variables", "mixins";
 
 #colorways-list-wrapper {
-    width: 50%;
+    width: 60%;
     #colorways-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
         .yarn-colorways {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
         }
     }
 }

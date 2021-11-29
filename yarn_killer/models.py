@@ -18,6 +18,11 @@ from . import db
 from .utils import format_name, get_texture_list, get_color_styles_list
 
 colors_dict = {
+    'red': ['red'],
+    'blue': ['blue'],
+    'yellow': ['yellow'],
+    'pink': ['pink'],
+
     'denim': ['blue'],
     'forest': ['green', 'blue-green', 'yellow-green'],
     'gold': ['yellow, orange'],
@@ -27,6 +32,7 @@ colors_dict = {
     'rose': ['red', 'pink'],
     'sage': ['green'],
     'sky': ['blue'],
+    'sunshine': ['yellow', 'orange'],
     'tangerine': ['orange'],
     'teal': ['blue-green'],
     'wine': ['red', 'purple', 'purple-red'],
@@ -106,7 +112,10 @@ class Colorway(db.Model):
     # value is the stripped down version, ie "lavender field"
     value = db.Column(db.String(200), nullable=False)
     # color is a String describing the color, ie "purple"
-    color = db.Column(db.String(200), nullable=False)
+    color_broad = db.Column(db.String(200), nullable=False)
+    color_medium = db.Column(db.String(200), nullable=False)
+    color_specific = db.Column(db.String(200), nullable=False)
+    
 
     def __repr__(self):
         return f'<Colorway {self.name} of {self.yarn.brand} {self.yarn.name}>'
@@ -117,20 +126,11 @@ class Colorway(db.Model):
             if k in self.value:
                 result = False
                 for x in v:
-                    if x == self.color:
+                    if x == self.color_broad:
                         result = True
                 if result is False:
-                    print(f'{self.name} is an unexpected color ({self.color})')
+                    print(f'{self.name} is an unexpected color ({self.color_broad})')
 
-
-        # def check_color(color_str):
-        #     if color_str in self.value and color_str not in self.color:
-        #         print(f'{self.value} has been assigned the color {self.color}, maybe check that?')
-        #     if 'gold' in self.value 
-
-        
-        # for x in ['red', 'yellow', 'purple', 'blue', 'green', 'pink', 'brown', 'orange']:
-        #     check_color(x)
 
 class Stash(db.Model):
     __tablename__ = 'stashes'
@@ -209,40 +209,32 @@ class Link(db.Model):
         
 
     def extract_colorways(self, recheck=False):
-        color_indices = ['true_color', 'color_name', 'hex', 'r', 'g', 'b']
+        color_indices = ['color_specific', 'color_medium', 'color_broad', 'hex', 'r', 'g', 'b']
         color_csv = read_csv('colordata.csv', names=color_indices, header=None)
 
-        def get_color(image):
-            # b, g, r, _ = cv.mean(image)
-            
+        def get_colors(image):
             image_data = np.reshape(image, (-1,3))
             image_data = np.float32(image_data)
 
             criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
             flags = cv.KMEANS_RANDOM_CENTERS
             _, _, centers = cv.kmeans(image_data, 1, None, criteria, 10, flags)
-            # print(f'I think the dominant color is (bgr) {centers[0].astype(np.int32)}')
             b, g, r = centers[0].astype(np.int32)
-            # print(f'{r} {g} {b}')
+            print(f'I think the dominant color is (rgb) {r} {g} {b}')
             minimum = 10000
             color_name = None
             for i in range(len(color_csv)):
                 distance = abs(r - int(color_csv.loc[i, 'r'])) + abs(g - int(color_csv.loc[i, 'g'])) + abs(b - int(color_csv.loc[i, 'b']))
                 if distance < minimum:
                     minimum = distance
-                    color_name = color_csv.loc[i, 'color_name']
+                    color_name = (color_csv.loc[i, 'color_specific'], color_csv.loc[i, 'color_medium'], color_csv.loc[i, 'color_broad'])
             return color_name
 
 
         soup = BeautifulSoup(requests.get(self.url).text, 'html.parser')
         color_labels = {}
         if self.store.name == 'Michaels':
-            # colors = [x.text for x in soup.find_all('span', 'color_label')]
-            # for x in colors:
-            #     color_labels.add(format_name(x))
             colors = [x for x in soup.find_all('li', 'emptyswatch')]
-            # for x in colors:
-            #     color_labels[format_name(x.contents[1].contents[1]['title'])] = x.contents[1].contents[1]['src']
             for x in colors:
                 title = None
                 src = None
@@ -261,12 +253,17 @@ class Link(db.Model):
             image = np.asarray(bytearray(requests.get(image_src, stream=True).raw.read()), dtype='uint8')
             image_data = cv.imdecode(image, cv.IMREAD_COLOR)
             if colorway is None:
-                colorway = Colorway(yarn_id=self.yarn_id, name=color_name[0], value=color_name[1], color=get_color(image_data))
+                colors = get_colors(image_data)
+                print(f'^^^ {color_name[0]}')
+                colorway = Colorway(yarn_id=self.yarn_id, name=color_name[0], value=color_name[1], color_specific=colors[0], color_medium=colors[1], color_broad=colors[2])
                 colorway.sanity_check_colors()
                 db.session.add(colorway)
                 db.session.commit()
             elif recheck:
-                colorway.color = get_color(image_data)
+                colors = get_colors(image_data)
+                print(f'^^^ {color_name[0]}')
+                colorway.color_specific, colorway.color_medium, colorway.color_broad = colors
+                # colorway.color_broad = colors[1]
                 colorway.sanity_check_colors()
                 db.session.commit()
             
