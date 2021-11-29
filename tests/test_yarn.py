@@ -1,6 +1,6 @@
 import pytest
 
-from yarn_killer.models import Yarn
+from yarn_killer.models import Yarn, Link, Colorway, Fiber
 from yarn_killer.forms import YarnForm, FiberForm
 
 
@@ -68,3 +68,20 @@ def test_edit_yarn(client, yarn_id, new_name): # TODO add fiber editing
 
 def test_edit_yarn_validation(client):
     pass
+
+
+@pytest.mark.parametrize('yarn_id,url,store_name', [
+    (1, 'https://www.michaels.com/caron-simply-soft-solid-yarn/M10109896.html', 'Michaels'),
+    (1, 'https://www.lovecrafts.com/en-us/p/caron-simply-soft', 'LoveCrafts'),
+    (1, 'https://www.yarnspirations.com/caron-simply-soft-yarn/H97003.html', 'Yarnspirations')
+])
+def test_add_link(client, yarn_id, url, store_name):
+    data = {'url': url }
+    client.post(f'yarn/{yarn_id}/add_link', data=data)
+
+    link = Link.query.filter_by(url=url).first()
+    assert link is not None
+    assert link.yarn_id == yarn_id
+    assert link.store.name == store_name
+    assert link.current_price is not None
+    

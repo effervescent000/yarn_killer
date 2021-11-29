@@ -1,4 +1,4 @@
-from . import db, ma
+from . import ma
 
 class YarnSchema(ma.Schema):
     class Meta:
