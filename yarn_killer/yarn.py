@@ -3,14 +3,44 @@ from flask import (
 )
 
 from .models import Yarn, Fiber, Store, Link
-from .forms import AddLinkForm, YarnForm
+from .forms import AddLinkForm, YarnForm, FilterForm
 from . import db
 
 bp = Blueprint('yarn', __name__, url_prefix='/yarn')
 
-@bp.route('/browse')
+@bp.route('/browse', methods=['GET', 'POST'])
 def browse():
-    return render_template('yarn_killer/yarn_browse.html', yarn_list=Yarn.query.all())
+    form = FilterForm()
+    if request.method == 'POST':
+        search_dict = {}
+        search_dict['brand'] = Yarn.query.filter_by(brand=form.brand_name.data).all() if form.brand_name.data != '' else None
+        search_dict['name'] = Yarn.query.filter_by(name=form.yarn_name.data).all() if form.yarn_name.data != '' else None
+        search_dict['weight_name'] = Yarn.query.filter_by(weight_name=form.weight_name.data).all() if form.weight_name.data != '' else None
+        if form.gauge_integer.data != '':
+            if form.gauge_approx:
+                search_dict['gauge'] = Yarn.query.filter_by(gauge=int(form.gauge_integer.data) - 1).all() + Yarn.query.filter_by(gauge=int(form.gauge_integer.data)).all() + Yarn.query.filter_by(gauge=int(form.gauge_integer.data) + 1).all()
+            else:
+                search_dict['gauge'] = Yarn.query.filter_by(gauge=form.gauge_integer.data).all()
+        search_dict['texture'] = Yarn.query.filter_by(texture=form.texture.data).all() if form.texture.data != '' else None
+        search_dict['color_style'] = Yarn.query.filter_by(color_style=form.color_style.data).all() if form.color_style.data != '' else None
+        
+        full_search = []
+        for v in search_dict.values():
+            if v is not None:
+                full_search.append(v)
+        yarn_list = list(set.intersection(*map(set,list(full_search))))
+        yarn_list = [yarn.id for yarn in yarn_list]
+        print(yarn_list)
+        return redirect(url_for('yarn.results', yarn_list=yarn_list))
+    return render_template('yarn_killer/yarn_browse.html', yarn_list=Yarn.query.all(), form=form)
+
+
+@bp.route('/results/<yarn_list>')
+def results(yarn_list):
+    yarn_list = yarn_list.strip('[]').split(', ')
+    yarn_list = [Yarn.query.get(x) for x in yarn_list]
+    return render_template('yarn_killer/results.html', yarn_list=yarn_list)
+
 
 @bp.route('/link_<id>/update')
 def update_price(id):
