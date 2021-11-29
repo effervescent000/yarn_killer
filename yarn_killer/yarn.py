@@ -1,12 +1,15 @@
 from flask import (
-    Blueprint, current_app, flash, redirect, render_template, request, url_for
+    Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
 )
 
 from .models import Yarn, Fiber, Store, Link
+from .schema import YarnSchema
 from .forms import AddLinkForm, YarnForm, FilterForm
-from . import db
+from . import db, ma
 
 bp = Blueprint('yarn', __name__, url_prefix='/yarn')
+single_yarn_schema = YarnSchema()
+all_yarn_schema = YarnSchema(many=True)
 
 @bp.route('/browse', methods=['GET', 'POST'])
 def browse():
@@ -111,6 +114,12 @@ def edit_yarn(id):
             populate_fibers(yarn, form)
             return redirect(url_for('yarn.view_yarn', id=yarn.id))
         return render_template('yarn_killer/yarn_edit.html', form=form)
+
+
+@bp.route('/get_all', methods=['GET'])
+def get_yarn_list():
+    all_yarn = Yarn.query.all()
+    return jsonify(all_yarn_schema.dump(all_yarn))
 
 
 @bp.route('/<id>/add_link', methods=('POST', 'GET'))

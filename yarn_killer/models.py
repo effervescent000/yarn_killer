@@ -199,7 +199,10 @@ class Link(db.Model):
             price = soup.find('span', 'product-prices__sell-price').text.strip().strip('$')
         elif self.store.name == 'Kraemer':
             price = soup.find('span', 'current-price').text.strip('$')
-        
+        elif self.store.name == 'Yarnspirations':
+            if soup.find('span', 'price-sales') is not None:
+                price = soup.find('span', 'price-sales').text.strip('"').split('$')[1]
+
         if price is not None:
             self.current_price = float(price)
             self.price_updated = datetime.now()
