@@ -21,7 +21,7 @@
                         {% for colorway in yarn.colorways %}
                             <div class="colorway">
                                 <span class="colorway-name">{{ colorway.name }}</span>
-                                <span class="colorway-color">({{ colorway.color }})</span>
+                                <span class="colorway-color">({{ colorway.color_broad }}, {{ colorway.color_medium }}, {{ colorway.color_specific }})</span>
                             </div>
                         {% endfor %}
                     </div>
