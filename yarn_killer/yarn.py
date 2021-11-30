@@ -1,58 +1,71 @@
-from flask import (
-    Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
-)
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
 
 from .models import Yarn, Fiber, Store, Link
 from .schema import YarnSchema
 from .forms import AddLinkForm, YarnForm, FilterForm
 from . import db, ma
 
-bp = Blueprint('yarn', __name__, url_prefix='/yarn')
+bp = Blueprint("yarn", __name__, url_prefix="/yarn")
 single_yarn_schema = YarnSchema()
 all_yarn_schema = YarnSchema(many=True)
 
-@bp.route('/browse', methods=['GET', 'POST'])
+
+@bp.route("/browse", methods=["GET", "POST"])
 def browse():
     form = FilterForm()
-    if request.method == 'POST':
+    if request.method == "POST":
         search_dict = {}
-        search_dict['brand'] = Yarn.query.filter_by(brand=form.brand_name.data).all() if form.brand_name.data != '' else None
-        search_dict['name'] = Yarn.query.filter_by(name=form.yarn_name.data).all() if form.yarn_name.data != '' else None
-        search_dict['weight_name'] = Yarn.query.filter_by(weight_name=form.weight_name.data).all() if form.weight_name.data != '' else None
-        if form.gauge_integer.data != '':
+        search_dict["brand"] = (
+            Yarn.query.filter_by(brand=form.brand_name.data).all() if form.brand_name.data != "" else None
+        )
+        search_dict["name"] = (
+            Yarn.query.filter_by(name=form.yarn_name.data).all() if form.yarn_name.data != "" else None
+        )
+        search_dict["weight_name"] = (
+            Yarn.query.filter_by(weight_name=form.weight_name.data).all() if form.weight_name.data != "" else None
+        )
+        if form.gauge_integer.data != "":
             if form.gauge_approx:
-                search_dict['gauge'] = Yarn.query.filter_by(gauge=int(form.gauge_integer.data) - 1).all() + Yarn.query.filter_by(gauge=int(form.gauge_integer.data)).all() + Yarn.query.filter_by(gauge=int(form.gauge_integer.data) + 1).all()
+                search_dict["gauge"] = (
+                    Yarn.query.filter_by(gauge=int(form.gauge_integer.data) - 1).all()
+                    + Yarn.query.filter_by(gauge=int(form.gauge_integer.data)).all()
+                    + Yarn.query.filter_by(gauge=int(form.gauge_integer.data) + 1).all()
+                )
             else:
-                search_dict['gauge'] = Yarn.query.filter_by(gauge=form.gauge_integer.data).all()
-        search_dict['texture'] = Yarn.query.filter_by(texture=form.texture.data).all() if form.texture.data != '' else None
-        search_dict['color_style'] = Yarn.query.filter_by(color_style=form.color_style.data).all() if form.color_style.data != '' else None
-        
+                search_dict["gauge"] = Yarn.query.filter_by(gauge=form.gauge_integer.data).all()
+        search_dict["texture"] = (
+            Yarn.query.filter_by(texture=form.texture.data).all() if form.texture.data != "" else None
+        )
+        search_dict["color_style"] = (
+            Yarn.query.filter_by(color_style=form.color_style.data).all() if form.color_style.data != "" else None
+        )
+
         full_search = []
         for v in search_dict.values():
             if v is not None:
                 full_search.append(v)
-        yarn_list = list(set.intersection(*map(set,list(full_search))))
+        yarn_list = list(set.intersection(*map(set, list(full_search))))
         yarn_list = [yarn.id for yarn in yarn_list]
         print(yarn_list)
-        return redirect(url_for('yarn.results', yarn_list=yarn_list))
-    return render_template('yarn_killer/yarn_browse.html', yarn_list=Yarn.query.all(), form=form)
+        return redirect(url_for("yarn.results", yarn_list=yarn_list))
+    return render_template("yarn_killer/yarn_browse.html", yarn_list=Yarn.query.all(), form=form)
 
 
-@bp.route('/results/<yarn_list>')
+@bp.route("/results/<yarn_list>")
 def results(yarn_list):
-    yarn_list = yarn_list.strip('[]').split(', ')
+    yarn_list = yarn_list.strip("[]").split(", ")
     yarn_list = [Yarn.query.get(x) for x in yarn_list]
-    return render_template('yarn_killer/results.html', yarn_list=yarn_list)
+    return render_template("yarn_killer/results.html", yarn_list=yarn_list)
 
 
-@bp.route('/link_<id>/update')
+@bp.route("/link_<id>/update")
 def update_price(id):
     link = Link.query.get(id)
     link.update_price()
-    return redirect(url_for('yarn.view_yarn', id=link.yarn_id))
+    return redirect(url_for("yarn.view_yarn", id=link.yarn_id))
 
 
-@bp.route('/<id>')
+@bp.route("/<id>")
 def view_yarn(id):
     yarn = Yarn.query.get(id)
     sorted_links = []
@@ -67,19 +80,21 @@ def view_yarn(id):
         if link.store_id is None:
             db.session.delete(link)
             db.session.commit()
-    return render_template('yarn_killer/yarn_view.html', yarn=yarn, sorted_links=sorted_links, colorway_count=len(yarn.colorways))
+    return render_template(
+        "yarn_killer/yarn_view.html", yarn=yarn, sorted_links=sorted_links, colorway_count=len(yarn.colorways)
+    )
 
 
-@bp.route('/make_colorways/<id>', methods=['GET', 'POST'])
+@bp.route("/make_colorways/<id>", methods=["GET", "POST"])
 def make_colorways(id):
     for link in Yarn.query.get(id).links:
         link.extract_colorways()
-    return redirect(url_for('yarn.view_yarn', id=link.yarn_id))
+    return redirect(url_for("yarn.view_yarn", id=link.yarn_id))
 
 
-@bp.route('/<id>/edit', methods=('GET', 'POST'))
+@bp.route("/<id>/edit", methods=("GET", "POST"))
 def edit_yarn(id):
-    if id == 'new':
+    if id == "new":
         form = YarnForm()
         if form.validate_on_submit():
             existing_yarn = Yarn.query.filter_by(brand=form.brand_name.data, name=form.yarn_name.data).first()
@@ -89,22 +104,22 @@ def edit_yarn(id):
                 # retrieve this yarn from the db
                 yarn = Yarn.query.filter_by(brand=yarn.brand, name=yarn.name).first()
                 populate_fibers(yarn, form)
-                return redirect(url_for('yarn.view_yarn', id=yarn.id))
+                return redirect(url_for("yarn.view_yarn", id=yarn.id))
             else:
-                flash('That yarn seems to already exist.')
-        return render_template('yarn_killer/yarn_edit.html', form=form)
+                flash("That yarn seems to already exist.")
+        return render_template("yarn_killer/yarn_edit.html", form=form)
     else:
         yarn = Yarn.query.get(id)
         form = YarnForm(
-            brand_name=yarn.brand, 
-            yarn_name=yarn.name, 
-            weight_name=yarn.weight_name, 
-            gauge=yarn.gauge, 
+            brand_name=yarn.brand,
+            yarn_name=yarn.name,
+            weight_name=yarn.weight_name,
+            gauge=yarn.gauge,
             yardage=yarn.yardage,
             weight_grams=yarn.weight_grams,
             texture=yarn.texture,
             color_style=yarn.color_style,
-            discontinued=yarn.discontinued
+            discontinued=yarn.discontinued,
         )
         for i in range(len(yarn.fibers)):
             form.fiber_type_list[i].fiber_type.data = yarn.fibers[i].type
@@ -112,39 +127,128 @@ def edit_yarn(id):
         if form.validate_on_submit():
             populate_yarn(yarn, form)
             populate_fibers(yarn, form)
-            return redirect(url_for('yarn.view_yarn', id=yarn.id))
-        return render_template('yarn_killer/yarn_edit.html', form=form)
+            return redirect(url_for("yarn.view_yarn", id=yarn.id))
+        return render_template("yarn_killer/yarn_edit.html", form=form)
 
 
-@bp.route('/get_all', methods=['GET'])
+@bp.route("/get_all", methods=["GET"])
 def get_yarn_list():
     all_yarn = Yarn.query.all()
     return jsonify(all_yarn_schema.dump(all_yarn))
 
 
-@bp.route('/<id>/add_link', methods=('POST', 'GET'))
+@bp.route("/get/<id>", methods=["GET"])
+def get_yarn_by_id(id):
+    return jsonify(single_yarn_schema.dump(Yarn.query.get(id)))
+
+
+@bp.route("/add", methods=["POST"])
+def add_yarn():
+    data = request.get_json()
+
+    brand = data.get("brand")
+    name = data.get("name")
+    weight_name = data.get("weight_name")
+    gauge = data.get("gauge")
+    yardage = data.get("yardage")
+    weight_grams = data.get("weight_grams")
+    texture = data.get("texture")
+    color_style = data.get("color_style")
+    discontinued = data.get("discontinued")
+
+    if brand == None:
+        return "Must include a brand name"
+    if name == None:
+        return "Must include a yarn name"
+    if weight_name == None:
+        return "Must include a weight band"
+    if gauge == None:
+        return "Must include a gauge"
+
+    yarn = Yarn(
+        brand=brand,
+        name=name,
+        weight_name=weight_name,
+        gauge=gauge,
+        yardage=yardage,
+        weight_grams=weight_grams,
+        texture=texture,
+        color_style=color_style,
+        discontinued=discontinued,
+    )
+    db.session.add(yarn)
+    db.session.commit()
+
+    return jsonify(single_yarn_schema.dump(yarn))
+
+
+@bp.route("/update", methods=["PUT"])
+def update_yarn_by_id(id):
+    data = request.get_json()
+
+    brand = data.get("brand")
+    name = data.get("name")
+    weight_name = data.get("weight_name")
+    gauge = data.get("gauge")
+    yardage = data.get("yardage")
+    weight_grams = data.get("weight_grams")
+    texture = data.get("texture")
+    color_style = data.get("color_style")
+    discontinued = data.get("discontinued")
+
+    yarn = Yarn.query.get(id)
+    if brand != None:
+        yarn.brand = brand
+    if name != None:
+        yarn.name = name
+    if weight_name != None:
+        yarn.weight_name = weight_name
+    if gauge != None:
+        yarn.gauge = gauge
+    if yardage != None:
+        yarn.yardage = yardage
+    if weight_grams != None:
+        yarn.weight_grams = weight_grams
+    if texture != None:
+        yarn.texture = texture
+    if color_style != None:
+        yarn.color_style = color_style
+    if discontinued != None:
+        yarn.discontinued = discontinued
+
+    db.session.commit()
+    return jsonify(single_yarn_schema.dump(yarn))
+
+
+@bp.route("/delete/<id>", methods=["DELETE"])
+def delete_yarn_by_id(id):
+    db.session.delete(Yarn.query.get(id))
+    db.session.commit()
+    return "Yarn deleted"
+
+
+@bp.route("/<id>/add_link", methods=("POST", "GET"))
 def add_link(id):
     def parse_name_from_url(link):
-        if 'www.joann.com' in link:
-            return 'Joann'
-        elif 'www.yarnspirations.com' in link:
-            return 'Yarnspirations'
-        elif 'www.michaels.com' in link:
-            return 'Michaels'
-        elif 'www.lovecrafts.com' in link:
-            return 'LoveCrafts'
-        elif 'www.motherofpurlyarn.com' in link:
-            return 'Mother of Purl'
-        elif 'www.lionbrand.com' in link:
-            return 'Lion Brand'
-        elif 'www.yarn.com' in link:
-            return 'WEBS'
-        elif 'patternsbykraemer.com' in link:
-            return 'Kraemer'
+        if "www.joann.com" in link:
+            return "Joann"
+        elif "www.yarnspirations.com" in link:
+            return "Yarnspirations"
+        elif "www.michaels.com" in link:
+            return "Michaels"
+        elif "www.lovecrafts.com" in link:
+            return "LoveCrafts"
+        elif "www.motherofpurlyarn.com" in link:
+            return "Mother of Purl"
+        elif "www.lionbrand.com" in link:
+            return "Lion Brand"
+        elif "www.yarn.com" in link:
+            return "WEBS"
+        elif "patternsbykraemer.com" in link:
+            return "Kraemer"
         else:
-            flash('Invalid link passed to parse_name_from_url')
+            flash("Invalid link passed to parse_name_from_url")
             return None
-
 
     yarn = Yarn.query.get(id)
     form = AddLinkForm()
@@ -175,9 +279,8 @@ def add_link(id):
                     yarn.stores.append(store_query)
                 db.session.commit()
             link.update_price()
-            return redirect(url_for('yarn.view_yarn', id=yarn.id))
-    return render_template('yarn_killer/add_link.html', yarn=yarn, form=form)
-
+            return redirect(url_for("yarn.view_yarn", id=yarn.id))
+    return render_template("yarn_killer/add_link.html", yarn=yarn, form=form)
 
 
 def populate_yarn(yarn, form):
@@ -194,19 +297,20 @@ def populate_yarn(yarn, form):
         db.session.add(yarn)
     db.session.commit()
 
+
 def populate_fibers(yarn, form):
     fibers = {}
     for fiber in form.fiber_type_list.entries:
-        if fiber.fiber_type.data != '' and fiber.fiber_type.data is not None:
+        if fiber.fiber_type.data != "" and fiber.fiber_type.data is not None:
             fibers[fiber.fiber_type.data] = fiber.fiber_qty.data
     if len(fibers) > 0:
         if sum(fibers.values()) > 100:
-            if current_app.config.get('TESTING'):
-                print('Fiber total > 100%')
+            if current_app.config.get("TESTING"):
+                print("Fiber total > 100%")
             else:
-                flash('Fiber total > 100%')
+                flash("Fiber total > 100%")
         else:
             for fiber_type, fiber_amount in fibers.items():
                 yarn.add_fibers(fiber_type, fiber_amount)
     else:
-        flash('The entered yarn has no fiber content.')
+        flash("The entered yarn has no fiber content.")
