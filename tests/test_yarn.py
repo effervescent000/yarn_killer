@@ -4,15 +4,39 @@ from yarn_killer.models import Yarn, Link, Colorway, Fiber
 from yarn_killer.forms import YarnForm, FiberForm
 
 
-def test_browse(client):
-    rv = client.get('yarn/browse')
+@pytest.mark.parametrize(
+    "brand_name,yarn_name,weight_name,gauge,gauge_approx,yardage,weight_grams,texture,color_style",
+    [("Caron", "", "", 18, True, "", "", "Plied (3+)", "Solid")],
+)
+def test_browse(
+    client,
+    brand_name,
+    yarn_name,
+    weight_name,
+    gauge,
+    gauge_approx,
+    yardage,
+    weight_grams,
+    texture,
+    color_style,
+):
+    rv = client.get("yarn/browse")
     assert rv.status_code == 200
-    # TODO change this to be something specific to the browse page, not part of the header
-    assert b'Yarn Killer' in rv.data
+    assert b"Yarn Killer" in rv.data
 
-@pytest.mark.parametrize('id', [
-    1, 2, 3
-])
+    data = {
+        "brand_name": brand_name,
+        "yarn_name": yarn_name,
+        "weight_name": weight_name,
+        "gauge_integer": gauge,
+        "gauge_approx": gauge_approx,
+        "yardage": yardage,
+        "weight_grams": weight_grams,
+        "texture": texture,
+        "color_style": color_style,
+    }
+    rv = client.post("yarn/browse", data=data)
+
 def test_view_yarn(client, id):
     rv = client.get(f'yarn/{id}')
     assert rv.status_code == 200

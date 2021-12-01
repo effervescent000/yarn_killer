@@ -54,7 +54,7 @@ def populate_test_data():
     db.session.commit()
 
     new_yarn = [
-        Yarn(brand='Caron', name='Simply Soft', weight_name='Aran', gauge=18, yardage=315, weight_grams=170),
+        Yarn(brand='Caron', name='Simply Soft', weight_name='Aran', gauge=18, yardage=315, weight_grams=170, texture="Plied (3+)", color_style="Solid"),
         Yarn(brand='Red Heart', name='Super Saver', weight_name='Aran', gauge=17, yardage=364, weight_grams=198),
         Yarn(brand='Cascade Yarns', name='Cascade 220', weight_name='Worsted', gauge=19, yardage=220, weight_grams=100),
         Yarn(brand='Lion Brand', name="Vanna's Choice", weight_name='Aran', gauge=16, yardage=170, weight_grams=100)
