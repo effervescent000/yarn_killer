@@ -25,7 +25,7 @@ def browse():
             Yarn.query.filter_by(weight_name=form.weight_name.data).all() if form.weight_name.data != "" else None
         )
         if form.gauge_integer.data != "":
-            if form.gauge_approx:
+            if form.gauge_approx.data:
                 search_dict["gauge"] = (
                     Yarn.query.filter_by(gauge=int(form.gauge_integer.data) - 1).all()
                     + Yarn.query.filter_by(gauge=int(form.gauge_integer.data)).all()
@@ -101,7 +101,7 @@ def edit_yarn(id):
             if existing_yarn is None:
                 yarn = Yarn()
                 populate_yarn(yarn, form)
-                # retrieve this yarn from the db
+                # retrieve this yarn from the db, do I need to do this?
                 yarn = Yarn.query.filter_by(brand=yarn.brand, name=yarn.name).first()
                 populate_fibers(yarn, form)
                 return redirect(url_for("yarn.view_yarn", id=yarn.id))
