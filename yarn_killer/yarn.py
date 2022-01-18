@@ -14,14 +14,27 @@ multi_yarn_schema = YarnSchema(many=True)
 
 
 @bp.route("/get/<id>", methods=["GET"])
-def get_yarn(id):
+def get_yarn_by_id(id):
     return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
 
 
 @bp.route("/get", methods=["GET"])
 def get_yarn_results():
+    if len(request.args) > 0:
+        brand = request.args.get("brand")
+        name = request.args.get("name")
     # eventually this function will take params for filtering
     return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
+
+
+@bp.route("/brands", methods=["GET"])
+def get_brands():
+    brands = []
+    yarn_list = Yarn.query.all()
+    for yarn in yarn_list:
+        if yarn.brand not in brands:
+            brands.append(yarn.brand)
+    return jsonify(brands)
 
 
 # templates and stuff
@@ -152,11 +165,6 @@ def edit_yarn(id):
 def get_yarn_list():
     all_yarn = Yarn.query.all()
     return jsonify(multi_yarn_schema.dump(all_yarn))
-
-
-@bp.route("/get/<id>", methods=["GET"])
-def get_yarn_by_id(id):
-    return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
 
 
 @bp.route("/add", methods=["POST"])
