@@ -36,6 +36,8 @@ def test_browse(
         "color_style": color_style,
     }
     rv = client.post("yarn/browse", data=data)
+    
+    assert rv.status_code == 302
 
 
 @pytest.mark.parametrize("id", [1, 2, 3])

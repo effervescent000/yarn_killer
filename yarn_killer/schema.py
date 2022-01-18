@@ -4,6 +4,7 @@ from . import ma
 class YarnSchema(ma.Schema):
     class Meta:
         fields = (
+            "id",
             "brand",
             "name",
             "weight_name",

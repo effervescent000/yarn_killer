@@ -7,7 +7,16 @@ from . import db, ma
 
 bp = Blueprint("yarn", __name__, url_prefix="/yarn")
 single_yarn_schema = YarnSchema()
-all_yarn_schema = YarnSchema(many=True)
+multi_yarn_schema = YarnSchema(many=True)
+
+
+# GET endpoints
+
+
+@bp.route("/get", methods=["GET"])
+def get_yarn_results():
+    # eventually this function will take params for filtering
+    return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
 
 
 @bp.route("/browse", methods=["GET", "POST"])
@@ -134,7 +143,7 @@ def edit_yarn(id):
 @bp.route("/get_all", methods=["GET"])
 def get_yarn_list():
     all_yarn = Yarn.query.all()
-    return jsonify(all_yarn_schema.dump(all_yarn))
+    return jsonify(multi_yarn_schema.dump(all_yarn))
 
 
 @bp.route("/get/<id>", methods=["GET"])
