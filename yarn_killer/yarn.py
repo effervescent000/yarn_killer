@@ -3,20 +3,28 @@ from flask import Blueprint, current_app, flash, redirect, render_template, requ
 from .models import Yarn, Fiber, Store, Link
 from .schema import YarnSchema
 from .forms import AddLinkForm, YarnForm, FilterForm
-from . import db, ma
+from . import db
 
 bp = Blueprint("yarn", __name__, url_prefix="/yarn")
-single_yarn_schema = YarnSchema()
+one_yarn_schema = YarnSchema()
 multi_yarn_schema = YarnSchema(many=True)
 
 
 # GET endpoints
 
 
+@bp.route("/get/<id>", methods=["GET"])
+def get_yarn(id):
+    return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
+
+
 @bp.route("/get", methods=["GET"])
 def get_yarn_results():
     # eventually this function will take params for filtering
     return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
+
+
+# templates and stuff
 
 
 @bp.route("/browse", methods=["GET", "POST"])
@@ -148,7 +156,7 @@ def get_yarn_list():
 
 @bp.route("/get/<id>", methods=["GET"])
 def get_yarn_by_id(id):
-    return jsonify(single_yarn_schema.dump(Yarn.query.get(id)))
+    return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
 
 
 @bp.route("/add", methods=["POST"])
@@ -188,7 +196,7 @@ def add_yarn():
     db.session.add(yarn)
     db.session.commit()
 
-    return jsonify(single_yarn_schema.dump(yarn))
+    return jsonify(one_yarn_schema.dump(yarn))
 
 
 @bp.route("/update", methods=["PUT"])
@@ -226,7 +234,7 @@ def update_yarn_by_id(id):
         yarn.discontinued = discontinued
 
     db.session.commit()
-    return jsonify(single_yarn_schema.dump(yarn))
+    return jsonify(one_yarn_schema.dump(yarn))
 
 
 @bp.route("/delete/<id>", methods=["DELETE"])
