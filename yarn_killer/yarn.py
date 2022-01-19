@@ -71,25 +71,25 @@ def add_yarn():
 
     brand = data.get("brand")
     name = data.get("name")
-    weight_name = data.get("weight_name")
+    weight_name = data.get("weightName")
     gauge = data.get("gauge")
     yardage = data.get("yardage")
-    weight_grams = data.get("weight_grams")
+    weight_grams = data.get("unitWeight")
     texture = data.get("texture")
-    color_style = data.get("color_style")
+    color_style = data.get("colorStyle")
     discontinued = data.get("discontinued")
 
-    if brand == None:
+    if brand == "":
         return jsonify("Must include a brand name")
-    if name == None:
+    if name == "":
         return jsonify("Must include a yarn name")
 
     yarn = Yarn.query.filter_by(brand=brand, name=name).first()
     if yarn == None:
-        if weight_name == None:
-            return "Must include a weight band"
-        if gauge == None:
-            return "Must include a gauge"
+        if weight_name == "":
+            return jsonify("Must include a weight band")
+        if gauge == "":
+            return jsonify("Must include a gauge")
 
         yarn = Yarn(
             brand=brand,
@@ -104,7 +104,67 @@ def add_yarn():
         )
         db.session.add(yarn)
         db.session.commit()
+
+        fiber_dict = {}
+        for i in range(1, 5):
+            fiber_data = data.get(f"selectFiber{i}")
+            if fiber_data != "":
+                fiber_dict[fiber_data] = int(data.get(f"numberFiber{i}"))
+        for fiber, amount in fiber_dict.items():
+            new_fiber = Fiber(yarn_id=yarn.id, type=fiber, amount=amount)
+            db.session.add(new_fiber)
+            db.session.commit()
+
     return jsonify(one_yarn_schema.dump(yarn))
+
+
+# PUT endpoints
+
+
+@bp.route("/update", methods=["PUT"])
+def update_yarn_by_id():
+    data = request.get_json()
+
+    id = data.get("id")
+
+    if id == None:
+        return jsonify("Error: No ID included in request")
+
+    brand = data.get("brand")
+    name = data.get("name")
+    weight_name = data.get("weight_name")
+    gauge = data.get("gauge")
+    yardage = data.get("yardage")
+    weight_grams = data.get("weight_grams")
+    texture = data.get("texture")
+    color_style = data.get("color_style")
+    discontinued = data.get("discontinued")
+
+    yarn = Yarn.query.get(id)
+    if brand != None:
+        yarn.brand = brand
+    if name != None:
+        yarn.name = name
+    if weight_name != None:
+        yarn.weight_name = weight_name
+    if gauge != None:
+        yarn.gauge = gauge
+    if yardage != None:
+        yarn.yardage = yardage
+    if weight_grams != None:
+        yarn.weight_grams = weight_grams
+    if texture != None:
+        yarn.texture = texture
+    if color_style != None:
+        yarn.color_style = color_style
+    if discontinued != None:
+        yarn.discontinued = discontinued
+
+    db.session.commit()
+    return jsonify(one_yarn_schema.dump(yarn))
+
+
+# utils
 
 
 # templates and stuff
@@ -235,44 +295,6 @@ def edit_yarn(id):
 def get_yarn_list():
     all_yarn = Yarn.query.all()
     return jsonify(multi_yarn_schema.dump(all_yarn))
-
-
-@bp.route("/update", methods=["PUT"])
-def update_yarn_by_id(id):
-    data = request.get_json()
-
-    brand = data.get("brand")
-    name = data.get("name")
-    weight_name = data.get("weight_name")
-    gauge = data.get("gauge")
-    yardage = data.get("yardage")
-    weight_grams = data.get("weight_grams")
-    texture = data.get("texture")
-    color_style = data.get("color_style")
-    discontinued = data.get("discontinued")
-
-    yarn = Yarn.query.get(id)
-    if brand != None:
-        yarn.brand = brand
-    if name != None:
-        yarn.name = name
-    if weight_name != None:
-        yarn.weight_name = weight_name
-    if gauge != None:
-        yarn.gauge = gauge
-    if yardage != None:
-        yarn.yardage = yardage
-    if weight_grams != None:
-        yarn.weight_grams = weight_grams
-    if texture != None:
-        yarn.texture = texture
-    if color_style != None:
-        yarn.color_style = color_style
-    if discontinued != None:
-        yarn.discontinued = discontinued
-
-    db.session.commit()
-    return jsonify(one_yarn_schema.dump(yarn))
 
 
 @bp.route("/delete/<id>", methods=["DELETE"])
