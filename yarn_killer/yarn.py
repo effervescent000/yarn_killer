@@ -62,6 +62,51 @@ def get_brands():
     return jsonify(brands)
 
 
+# POST endpoints
+
+
+@bp.route("/add", methods=["POST"])
+def add_yarn():
+    data = request.get_json()
+
+    brand = data.get("brand")
+    name = data.get("name")
+    weight_name = data.get("weight_name")
+    gauge = data.get("gauge")
+    yardage = data.get("yardage")
+    weight_grams = data.get("weight_grams")
+    texture = data.get("texture")
+    color_style = data.get("color_style")
+    discontinued = data.get("discontinued")
+
+    if brand == None:
+        return jsonify("Must include a brand name")
+    if name == None:
+        return jsonify("Must include a yarn name")
+
+    yarn = Yarn.query.filter_by(brand=brand, name=name).first()
+    if yarn == None:
+        if weight_name == None:
+            return "Must include a weight band"
+        if gauge == None:
+            return "Must include a gauge"
+
+        yarn = Yarn(
+            brand=brand,
+            name=name,
+            weight_name=weight_name,
+            gauge=gauge,
+            yardage=yardage,
+            weight_grams=weight_grams,
+            texture=texture,
+            color_style=color_style,
+            discontinued=discontinued,
+        )
+        db.session.add(yarn)
+        db.session.commit()
+    return jsonify(one_yarn_schema.dump(yarn))
+
+
 # templates and stuff
 
 
@@ -190,46 +235,6 @@ def edit_yarn(id):
 def get_yarn_list():
     all_yarn = Yarn.query.all()
     return jsonify(multi_yarn_schema.dump(all_yarn))
-
-
-@bp.route("/add", methods=["POST"])
-def add_yarn():
-    data = request.get_json()
-
-    brand = data.get("brand")
-    name = data.get("name")
-    weight_name = data.get("weight_name")
-    gauge = data.get("gauge")
-    yardage = data.get("yardage")
-    weight_grams = data.get("weight_grams")
-    texture = data.get("texture")
-    color_style = data.get("color_style")
-    discontinued = data.get("discontinued")
-
-    if brand == None:
-        return "Must include a brand name"
-    if name == None:
-        return "Must include a yarn name"
-    if weight_name == None:
-        return "Must include a weight band"
-    if gauge == None:
-        return "Must include a gauge"
-
-    yarn = Yarn(
-        brand=brand,
-        name=name,
-        weight_name=weight_name,
-        gauge=gauge,
-        yardage=yardage,
-        weight_grams=weight_grams,
-        texture=texture,
-        color_style=color_style,
-        discontinued=discontinued,
-    )
-    db.session.add(yarn)
-    db.session.commit()
-
-    return jsonify(one_yarn_schema.dump(yarn))
 
 
 @bp.route("/update", methods=["PUT"])
