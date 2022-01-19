@@ -1,3 +1,4 @@
+from xmlrpc.client import boolean
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
 
 from .models import Yarn, Fiber, Store, Link
@@ -21,9 +22,33 @@ def get_yarn_by_id(id):
 @bp.route("/get", methods=["GET"])
 def get_yarn_results():
     if len(request.args) > 0:
+
         brand = request.args.get("brand")
         name = request.args.get("name")
-    # eventually this function will take params for filtering
+        gauge = request.args.get("gauge", type=int)
+        approx = request.args.get("approx", default=False, type=boolean)
+        weight_name = request.args.get("weightName")
+        texture = request.args.get("texture")
+        color_style = request.args.get("colorStyle")
+
+        all_results = []
+        if brand != None:
+            all_results.append(Yarn.query.filter_by(brand=brand).all())
+        if name != None:
+            all_results.append(Yarn.query.filter(Yarn.name.contains(name)).all())
+        if gauge != None:
+            if approx:
+                all_results.append(Yarn.query.filter(Yarn.gauge > gauge - 2, Yarn.gauge < gauge + 2).all())
+            else:
+                all_results.append(Yarn.query.filter_by(gauge=gauge).all())
+        if weight_name != None:
+            all_results.append(Yarn.query.filter_by(weight_name=weight_name).all())
+        if texture != None:
+            all_results.append(Yarn.query.filter_by(texture=texture).all())
+        if color_style != None:
+            all_results.append(Yarn.query.filter_by(color_style=color_style).all())
+
+        return jsonify(multi_yarn_schema.dump(list(set.intersection(*map(set, all_results)))))
     return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
 
 
