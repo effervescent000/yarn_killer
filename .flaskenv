@@ -1,0 +1,2 @@
+FLASK_APP=yarn_killer
+FLASK_ENV=development

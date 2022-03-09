@@ -4,11 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
+from dotenv import load_dotenv
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 ma = Marshmallow()
 cors = CORS()
+
+load_dotenv()
 
 
 def create_app(test_config=None):

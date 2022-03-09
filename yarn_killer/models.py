@@ -110,9 +110,7 @@ class Colorway(db.Model):
     yarn_id = db.Column(db.Integer, db.ForeignKey("yarn.id"))
     # name is the actual name of the colorway, ie "Lavender Field" or some shit
     name = db.Column(db.String(200), nullable=False)
-    # value is the stripped down version, ie "lavender field"
     value = db.Column(db.String(200), nullable=False)
-    # color is a String describing the color, ie "purple"
     color_broad = db.Column(db.String(200), nullable=False)
     color_medium = db.Column(db.String(200), nullable=False)
     color_specific = db.Column(db.String(200), nullable=False)
