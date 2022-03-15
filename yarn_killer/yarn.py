@@ -98,6 +98,7 @@ def add_yarn():
     texture = data.get("texture")
     color_style = data.get("colorStyle")
     discontinued = data.get("discontinued")
+    fibers = data.get("fibers")
 
     if brand == "":
         return jsonify("Must include a brand name")
@@ -125,15 +126,14 @@ def add_yarn():
         db.session.add(yarn)
         db.session.commit()
 
-        fiber_dict = {}
-        for i in range(1, 5):
-            fiber_data = data.get(f"selectFiber{i}")
-            if fiber_data != "":
-                fiber_dict[fiber_data] = int(data.get(f"numberFiber{i}"))
-        for fiber, amount in fiber_dict.items():
-            new_fiber = Fiber(yarn_id=yarn.id, type=fiber, amount=amount)
-            db.session.add(new_fiber)
-            db.session.commit()
+        print(fibers)
+        if fibers != None:
+            for fiber in fibers:
+                new_fiber = Fiber(
+                    yarn_id=yarn.id, type=fiber["type"], amount=fiber["amount"]
+                )
+                db.session.add(new_fiber)
+                db.session.commit()
 
     return jsonify(one_yarn_schema.dump(yarn))
 
@@ -177,6 +177,7 @@ def update_yarn_by_id():
     texture = data.get("texture")
     color_style = data.get("color_style")
     discontinued = data.get("discontinued")
+    fibers = data.get("fibers")
 
     yarn = Yarn.query.get(id)
     if brand != None:
@@ -198,6 +199,20 @@ def update_yarn_by_id():
     if discontinued != None:
         yarn.discontinued = discontinued
 
+    old_fibers = Fiber.query.filter_by(yarn_id=id).all()
+    if fibers == None:
+        purge_fibers(id)
+    elif len(fibers) != len(old_fibers):
+        purge_fibers(id)
+
+    if len(old_fibers) == 0:
+        for fiber in fibers:
+            new_fiber = Fiber(
+                yarn_id=yarn.id, type=fiber["type"], amount=fiber["amount"]
+            )
+            db.session.add(new_fiber)
+            db.session.commit()
+
     db.session.commit()
     return jsonify(one_yarn_schema.dump(yarn))
 
@@ -209,40 +224,13 @@ def update_yarn_by_id():
 def delete_yarn_by_id(id):
     db.session.delete(Yarn.query.get(id))
     db.session.commit()
-    return "Yarn deleted"
+    return jsonify("Yarn deleted")
 
 
 # utils
 
 
-def populate_yarn(yarn, form):
-    yarn.brand = form.brand_name.data
-    yarn.name = form.yarn_name.data
-    yarn.weight_name = form.weight_name.data
-    yarn.gauge = form.gauge.data
-    yarn.yardage = form.yardage.data
-    yarn.weight_grams = form.weight_grams.data
-    yarn.texture = form.texture.data
-    yarn.color_style = form.color_style.data
-    yarn.discontinued = form.discontinued.data
-    if Yarn.query.get(yarn.id) is None:
-        db.session.add(yarn)
-    db.session.commit()
-
-
-def populate_fibers(yarn, form):
-    fibers = {}
-    for fiber in form.fiber_type_list.entries:
-        if fiber.fiber_type.data != "" and fiber.fiber_type.data is not None:
-            fibers[fiber.fiber_type.data] = fiber.fiber_qty.data
-    if len(fibers) > 0:
-        if sum(fibers.values()) > 100:
-            if current_app.config.get("TESTING"):
-                print("Fiber total > 100%")
-            else:
-                flash("Fiber total > 100%")
-        else:
-            for fiber_type, fiber_amount in fibers.items():
-                yarn.add_fibers(fiber_type, fiber_amount)
-    else:
-        flash("The entered yarn has no fiber content.")
+def purge_fibers(yarn_id):
+    for fiber in Fiber.query.filter_by(yarn_id=yarn_id).all():
+        db.session.delete(fiber)
+        db.session.commit()
