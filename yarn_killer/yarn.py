@@ -1,9 +1,17 @@
 from xmlrpc.client import boolean
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    jsonify,
+)
 
-from .models import Yarn, Fiber, Store, Link
+from .models import Yarn, Fiber, Image, Store, Link
 from .schema import YarnSchema
-from .forms import AddLinkForm, YarnForm, FilterForm
 from . import db
 
 bp = Blueprint("yarn", __name__, url_prefix="/yarn")
@@ -44,7 +52,11 @@ def get_yarn_results():
             all_results.append(Yarn.query.filter(Yarn.name.contains(name)).all())
         if gauge != None:
             if approx:
-                all_results.append(Yarn.query.filter(Yarn.gauge > gauge - 2, Yarn.gauge < gauge + 2).all())
+                all_results.append(
+                    Yarn.query.filter(
+                        Yarn.gauge > gauge - 2, Yarn.gauge < gauge + 2
+                    ).all()
+                )
             else:
                 all_results.append(Yarn.query.filter_by(gauge=gauge).all())
         if weight_name != None:
@@ -54,7 +66,9 @@ def get_yarn_results():
         if color_style != None:
             all_results.append(Yarn.query.filter_by(color_style=color_style).all())
 
-        return jsonify(multi_yarn_schema.dump(list(set.intersection(*map(set, all_results)))))
+        return jsonify(
+            multi_yarn_schema.dump(list(set.intersection(*map(set, all_results))))
+        )
     return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
 
 
@@ -122,6 +136,24 @@ def add_yarn():
             db.session.commit()
 
     return jsonify(one_yarn_schema.dump(yarn))
+
+
+@bp.route("/image", methods=["POST"])
+def add_image_to_yarn():
+    data = request.get_json()
+    yarn_id = data.get("yarn_id")
+    if yarn_id == None:
+        return jsonify("Error: No ID included in request")
+
+    url = data.get("url")
+    if url == None:
+        return jsonify("Error: No URL included in request")
+
+    label = data.get("label")
+    colorway_id = data.get("colorway_id") if data.get("colorway_id") != None else 0
+    new_image = Image(yarn_id=yarn_id, colorway_id=colorway_id, url=url, label=label)
+    db.session.add(new_image)
+    db.session.commit()
 
 
 # PUT endpoints

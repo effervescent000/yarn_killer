@@ -1,13 +1,11 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from dotenv import load_dotenv
 
 db = SQLAlchemy()
-login_manager = LoginManager()
 ma = Marshmallow()
 cors = CORS()
 
@@ -28,18 +26,13 @@ def create_app(test_config=None):
         pass
 
     db.init_app(app)
-    login_manager.init_app(app)
     ma.init_app(app)
     cors.init_app(app)
 
     with app.app_context():
-        # from .models import User, Yarn, Fiber, Stash, Stock, Link, Store
-        # db.create_all()
+        from .models import User, Yarn, Fiber, Stash, Stock, Link, Store, Image
 
-        from . import index
-
-        app.register_blueprint(index.bp)
-        app.add_url_rule("/", endpoint="index")
+        db.create_all()
 
         from . import yarn
 
