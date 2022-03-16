@@ -11,12 +11,14 @@ from flask import (
 )
 
 from .models import Yarn, Fiber, Image, Store, Link
-from .schema import YarnSchema
+from .schema import YarnSchema, ImageSchema
 from . import db
 
 bp = Blueprint("yarn", __name__, url_prefix="/yarn")
 one_yarn_schema = YarnSchema()
 multi_yarn_schema = YarnSchema(many=True)
+one_image_schema = ImageSchema()
+multi_image_schema = ImageSchema(many=True)
 
 
 # GET endpoints
@@ -154,6 +156,8 @@ def add_image_to_yarn():
     new_image = Image(yarn_id=yarn_id, colorway_id=colorway_id, url=url, label=label)
     db.session.add(new_image)
     db.session.commit()
+
+    return jsonify(one_image_schema.dump(new_image))
 
 
 # PUT endpoints
