@@ -38,6 +38,9 @@ def test_get_yarn_list(client):
         ("", "vanna", "", ""),
         ("", "Vanna", "", ""),
         ("Lion", "Vanna", "", ""),
+        ("", "", 19, "true"),
+        ("", "", 19, "false"),
+        ("", "", 19, ""),
     ],
 )
 def test_get_yarn_results(client, brand, name, gauge, approx):
@@ -61,3 +64,10 @@ def test_get_yarn_results(client, brand, name, gauge, approx):
         assert brand.lower() in data[0]["brand"].lower()
     if name:
         assert name.lower() in data[0]["name"].lower()
+    if gauge:
+        if approx:
+            for yarn in data:
+                assert gauge - 2 < yarn["gauge"] < gauge + 2
+        else:
+            for yarn in data:
+                assert yarn["gauge"] == gauge
