@@ -86,6 +86,7 @@ def get_brands():
 @bp.route("/add", methods=["POST"])
 def add_yarn():
     data = request.get_json()
+    print(data)
 
     brand = data.get("brand")
     name = data.get("name")

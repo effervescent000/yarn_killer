@@ -1,6 +1,9 @@
+from flask import jsonify
 import pytest
 
 from yarn_killer.utils import decode_response
+
+# GET endpoint tests
 
 
 @pytest.mark.parametrize("id,brand,fibers_num", [(1, "Caron", 1), (4, "Lion Brand", 0)])
@@ -71,3 +74,68 @@ def test_get_yarn_results(client, brand, name, gauge, approx):
         else:
             for yarn in data:
                 assert yarn["gauge"] == gauge
+
+
+# POST endpoint tests
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+    ],
+)
+def test_add_yarn_valid(client, input_data):
+    response = client.post("/yarn/add", json=input_data)
+    assert response.status_code == 200
+
+    data = response.json
+    assert data["id"]
+    assert data["brand"] == input_data["brand"]
+
+    for x in input_data["fibers"]:
+        fiber_match = False
+        for y in data["fibers"]:
+            if x["type"] == y["type"] and x["amount"] == y["amount"]:
+                fiber_match = True
+                break
+        assert fiber_match
