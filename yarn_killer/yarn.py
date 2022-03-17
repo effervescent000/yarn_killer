@@ -45,9 +45,9 @@ def get_yarn_results():
 
         all_results = []
         if brand != None:
-            all_results.append(Yarn.query.filter_by(brand=brand).all())
+            all_results.append(Yarn.query.filter(Yarn.brand.ilike(f"%{brand}%")).all())
         if name != None:
-            all_results.append(Yarn.query.filter(Yarn.name.contains(name)).all())
+            all_results.append(Yarn.query.filter(Yarn.name.ilike(f"%{name}%")).all())
         if gauge != None:
             if approx:
                 all_results.append(

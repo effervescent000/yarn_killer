@@ -29,7 +29,17 @@ def test_get_yarn_list(client):
     assert len(data) == 4
 
 
-@pytest.mark.parametrize("brand,name,gauge, approx", [("Caron", "", "", "")])
+@pytest.mark.parametrize(
+    "brand,name,gauge, approx",
+    [
+        ("", "", "", ""),
+        ("Caron", "", "", ""),
+        ("caron", "", "", ""),
+        ("", "vanna", "", ""),
+        ("", "Vanna", "", ""),
+        ("Lion", "Vanna", "", ""),
+    ],
+)
 def test_get_yarn_results(client, brand, name, gauge, approx):
     def build_url():
         queries = []
@@ -48,4 +58,6 @@ def test_get_yarn_results(client, brand, name, gauge, approx):
     data = decode_response(response)
     assert len(data) > 0
     if brand:
-        assert brand in data[0]["brand"]
+        assert brand.lower() in data[0]["brand"].lower()
+    if name:
+        assert name.lower() in data[0]["name"].lower()
