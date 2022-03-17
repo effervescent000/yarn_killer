@@ -139,3 +139,66 @@ def test_add_yarn_valid(client, input_data):
                 fiber_match = True
                 break
         assert fiber_match
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (
+            {
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+    ],
+)
+def test_add_yarn_invalid(client, input_data):
+    response = client.post("/yarn/add", json=input_data)
+    assert response.status_code == 200
+    assert "Error" in response.json

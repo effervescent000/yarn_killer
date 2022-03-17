@@ -99,17 +99,17 @@ def add_yarn():
     discontinued = data.get("discontinued")
     fibers = data.get("fibers")
 
-    if brand == "":
-        return jsonify("Must include a brand name")
-    if name == "":
-        return jsonify("Must include a yarn name")
+    if not brand:
+        return jsonify("Error: Must include a brand name")
+    if not name:
+        return jsonify("Error: Must include a yarn name")
 
     yarn = Yarn.query.filter_by(brand=brand, name=name).first()
     if yarn == None:
-        if weight_name == "":
-            return jsonify("Must include a weight band")
-        if gauge == "":
-            return jsonify("Must include a gauge")
+        if not weight_name:
+            return jsonify("Error: Must include a weight band")
+        if not gauge:
+            return jsonify("Error: Must include a gauge")
 
         yarn = Yarn(
             brand=brand,
