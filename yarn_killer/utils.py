@@ -1,3 +1,6 @@
+import json
+
+
 def get_yarn_weight_list():
     return [
         "Thread",
@@ -48,3 +51,8 @@ def format_name(name):
     value = label.lower().replace("'", "")
 
     return (label, value)
+
+
+def decode_response(response):
+    """Decode json from response"""
+    return json.loads(response.data.decode("utf8"))

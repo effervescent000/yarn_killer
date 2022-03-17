@@ -13,10 +13,6 @@ def app():
         "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URI,
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
         "SECRET_KEY": "dev",
-        "WTF_CSRF_ENABLED": False,
-        "WTF_CSRF_CHECK_DEFAULT": False,
-        "WTF_CSRF_METHODS": [],
-        "LOGIN_DISABLED": True,
     }
 
     app = create_app(settings_override)
@@ -102,7 +98,13 @@ def populate_test_data():
         db.session.add(yarn)
     db.session.commit()
 
-    Yarn.query.filter_by(brand="Caron", name="Simply Soft").first().add_fibers("Acrylic", 100)
-    Yarn.query.filter_by(brand="Red Heart", name="Super Saver").first().add_fibers("Acrylic", 100)
-    Yarn.query.filter_by(brand="Cascade Yarns", name="Cascade 220").first().add_fibers("Wool", 100)
+    Yarn.query.filter_by(brand="Caron", name="Simply Soft").first().add_fibers(
+        "Acrylic", 100
+    )
+    Yarn.query.filter_by(brand="Red Heart", name="Super Saver").first().add_fibers(
+        "Acrylic", 100
+    )
+    Yarn.query.filter_by(brand="Cascade Yarns", name="Cascade 220").first().add_fibers(
+        "Wool", 100
+    )
     # leaving Vanna's Choice with no fibers for testing purposes
