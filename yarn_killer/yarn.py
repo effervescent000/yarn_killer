@@ -1,7 +1,6 @@
 from xmlrpc.client import boolean
 from flask import (
     Blueprint,
-    current_app,
     request,
     jsonify,
 )
@@ -11,6 +10,7 @@ from .schema import YarnSchema, ImageSchema, LinkSchema
 from . import db
 
 bp = Blueprint("yarn", __name__, url_prefix="/yarn")
+
 one_yarn_schema = YarnSchema()
 multi_yarn_schema = YarnSchema(many=True)
 one_image_schema = ImageSchema()
@@ -22,19 +22,8 @@ multi_link_schema = LinkSchema(many=True)
 # GET endpoints
 
 
-@bp.route("/get/<id>", methods=["GET"])
-def get_yarn_by_id(id):
-    return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
-
-
-@bp.route("/get_all", methods=["GET"])
+@bp.route("/", methods=["GET"])
 def get_yarn_list():
-    all_yarn = Yarn.query.all()
-    return jsonify(multi_yarn_schema.dump(all_yarn))
-
-
-@bp.route("/get", methods=["GET"])
-def get_yarn_results():
     if len(request.args) > 0:
 
         brand = request.args.get("brand")
@@ -72,6 +61,11 @@ def get_yarn_results():
     return jsonify(multi_yarn_schema.dump(Yarn.query.all()))
 
 
+@bp.route("/<id>", methods=["GET"])
+def get_yarn_by_id(id):
+    return jsonify(one_yarn_schema.dump(Yarn.query.get(id)))
+
+
 @bp.route("/brands", methods=["GET"])
 def get_brands():
     brands = []
@@ -85,10 +79,9 @@ def get_brands():
 # POST endpoints
 
 
-@bp.route("/add", methods=["POST"])
+@bp.route("/", methods=["POST"])
 def add_yarn():
     data = request.get_json()
-    print(data)
 
     brand = data.get("brand")
     name = data.get("name")
@@ -127,7 +120,6 @@ def add_yarn():
         db.session.add(yarn)
         db.session.commit()
 
-        print(fibers)
         if fibers != None:
             for fiber in fibers:
                 new_fiber = Fiber(
@@ -190,14 +182,9 @@ def add_link_to_yarn():
 # PUT endpoints
 
 
-@bp.route("/update", methods=["PUT"])
-def update_yarn_by_id():
+@bp.route("/<id>", methods=["PUT"])
+def update_yarn_by_id(id):
     data = request.get_json()
-
-    id = data.get("id")
-
-    if id == None:
-        return jsonify("Error: No ID included in request")
 
     brand = data.get("brand")
     name = data.get("name")
@@ -211,27 +198,27 @@ def update_yarn_by_id():
     fibers = data.get("fibers")
 
     yarn = Yarn.query.get(id)
-    if brand != None:
+    if brand:
         yarn.brand = brand
-    if name != None:
+    if name:
         yarn.name = name
-    if weight_name != None:
+    if weight_name:
         yarn.weight_name = weight_name
-    if gauge != None:
+    if gauge:
         yarn.gauge = gauge
-    if yardage != None:
+    if yardage:
         yarn.yardage = yardage
-    if weight_grams != None:
+    if weight_grams:
         yarn.weight_grams = weight_grams
-    if texture != None:
+    if texture:
         yarn.texture = texture
-    if color_style != None:
+    if color_style:
         yarn.color_style = color_style
     if discontinued != None:
         yarn.discontinued = discontinued
 
     old_fibers = Fiber.query.filter_by(yarn_id=id).all()
-    if fibers == None:
+    if not fibers:
         purge_fibers(id)
     elif len(fibers) != len(old_fibers):
         purge_fibers(id)

@@ -9,7 +9,7 @@ from yarn_killer.utils import decode_response
 @pytest.mark.parametrize("id,brand,fibers_num", [(1, "Caron", 1), (4, "Lion Brand", 0)])
 def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
     # first test for a valid get call
-    response = client.get(f"yarn/get/{id}")
+    response = client.get(f"yarn/{id}")
     assert response.status_code == 200
 
     data = decode_response(response)
@@ -19,14 +19,14 @@ def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
 
 @pytest.mark.parametrize("id", [(10000), ("aaaa")])
 def test_get_yarn_by_id_invalid_input(client, id):
-    response = client.get(f"yarn/get/{id}")
+    response = client.get(f"yarn/{id}")
     assert response.status_code == 200
     data = decode_response(response)
     assert data == {}
 
 
-def test_get_yarn_list(client):
-    response = client.get("yarn/get_all")
+def test_get_yarn(client):
+    response = client.get("yarn/")
     assert response.status_code == 200
     data = decode_response(response)
     assert len(data) == 4
@@ -46,7 +46,7 @@ def test_get_yarn_list(client):
         ("", "", 19, ""),
     ],
 )
-def test_get_yarn_results(client, brand, name, gauge, approx):
+def test_get_yarn_with_queries(client, brand, name, gauge, approx):
     def build_url():
         queries = []
         if brand:
@@ -59,7 +59,7 @@ def test_get_yarn_results(client, brand, name, gauge, approx):
             queries.append(f"approx={approx}")
         return f"?{'&'.join(queries)}"
 
-    response = client.get(f"/yarn/get{build_url()}")
+    response = client.get(f"/yarn/{build_url()}")
     assert response.status_code == 200
     data = decode_response(response)
     assert len(data) > 0
@@ -125,7 +125,7 @@ def test_get_yarn_results(client, brand, name, gauge, approx):
     ],
 )
 def test_add_yarn_valid(client, input_data):
-    response = client.post("/yarn/add", json=input_data)
+    response = client.post("yarn/", json=input_data)
     assert response.status_code == 200
 
     data = response.json
@@ -199,7 +199,7 @@ def test_add_yarn_valid(client, input_data):
     ],
 )
 def test_add_yarn_invalid(client, input_data):
-    response = client.post("/yarn/add", json=input_data)
+    response = client.post("yarn/", json=input_data)
     assert response.status_code == 200
     assert "Error" in response.json
 
