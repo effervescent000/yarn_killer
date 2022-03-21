@@ -21,6 +21,9 @@ one_user_schema = UserSchema()
 multi_user_schema = UserSchema(many=True)
 
 
+# GET endpoints
+
+
 @bp.route("/", methods=["GET"])
 def get_users():
     if request.args:
@@ -43,3 +46,32 @@ def get_users():
 def get_user(id):
     user = User.query.get(id)
     return jsonify(one_user_schema.dump(user)), 200 if user else 404
+
+
+# POST endpoints
+
+
+@bp.route("/", methods=["POST"])
+def create_user():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username and password:
+        if not User.query.filter_by(username=username).first():
+            new_user = User(username=username)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+
+            return (
+                jsonify(
+                    {
+                        "user": one_user_schema.dump(new_user),
+                        "access_token": create_access_token(identity=username),
+                    }
+                ),
+                201,
+            )
+    return jsonify({"error": "invalid input"}), 400

@@ -46,3 +46,32 @@ def test_get_user_valid(client, id, username):
 def test_get_user_invalid(client):
     response = client.get("/auth/1000")
     assert response.status_code == 404
+
+
+# POST endpoint tests
+
+
+@pytest.mark.parametrize("username, password", [("testing", "password")])
+def test_create_user_valid(client, username, password):
+    response = client.post("/auth/", json={"username": username, "password": password})
+    assert response.status_code == 201
+
+    data = response.json
+    assert "access_token" in data
+    assert "user" in data
+
+    user = data["user"]
+    assert "id" in user
+    assert user["username"] == username
+    assert "password" not in user
+
+
+@pytest.mark.parametrize(
+    "username, password", [("Admin", "password"), ("", "password"), ("testing", "")]
+)
+def test_create_user_invalid(client, username, password):
+    response = client.post("/auth/", json={"username": username, "password": password})
+    assert response.status_code == 400
+
+    data = response.json
+    assert "user" not in data
