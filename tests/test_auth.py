@@ -31,3 +31,18 @@ def test_get_users_with_queries(client, username, role):
     assert len(data) > 0
     if username:
         assert data[0]["username"] == username
+
+
+@pytest.mark.parametrize("id,username", [(1, "Admin")])
+def test_get_user_valid(client, id, username):
+    response = client.get(f"/auth/{id}")
+    assert response.status_code == 200
+
+    data = response.json
+    assert data["id"] == id
+    assert data["username"] == username
+
+
+def test_get_user_invalid(client):
+    response = client.get("/auth/1000")
+    assert response.status_code == 404

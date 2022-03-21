@@ -37,3 +37,9 @@ def get_users():
             multi_user_schema.dump(list(set.intersection(*map(set, all_results))))
         )
     return jsonify(multi_user_schema.dump(User.query.all()))
+
+
+@bp.route("/<id>", methods=["GET"])
+def get_user(id):
+    user = User.query.get(id)
+    return jsonify(one_user_schema.dump(user)), 200 if user else 404
