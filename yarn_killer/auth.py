@@ -51,7 +51,7 @@ def get_user(id):
 # POST endpoints
 
 
-@bp.route("/", methods=["POST"])
+@bp.route("/signup", methods=["POST"])
 def create_user():
     data = request.get_json()
 
@@ -75,3 +75,47 @@ def create_user():
                 201,
             )
     return jsonify({"error": "invalid input"}), 400
+
+
+@bp.route("/login", methods=["POST"])
+def login_user():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username and password:
+        user = User.query.filter_by(username=username).first()
+        if user:
+            if user.check_password(password):
+                return jsonify(
+                    {
+                        "user": one_user_schema.dump(user),
+                        "access_token": create_access_token(identity=username),
+                    }
+                )
+    return jsonify({"error": "invalid input"}), 400
+
+
+# utils
+
+
+@current_app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original respone
+        return response
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(username=identity).first()

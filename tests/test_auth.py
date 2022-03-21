@@ -53,7 +53,9 @@ def test_get_user_invalid(client):
 
 @pytest.mark.parametrize("username, password", [("testing", "password")])
 def test_create_user_valid(client, username, password):
-    response = client.post("/auth/", json={"username": username, "password": password})
+    response = client.post(
+        "/auth/signup", json={"username": username, "password": password}
+    )
     assert response.status_code == 201
 
     data = response.json
@@ -70,8 +72,46 @@ def test_create_user_valid(client, username, password):
     "username, password", [("Admin", "password"), ("", "password"), ("testing", "")]
 )
 def test_create_user_invalid(client, username, password):
-    response = client.post("/auth/", json={"username": username, "password": password})
+    response = client.post(
+        "/auth/signup", json={"username": username, "password": password}
+    )
     assert response.status_code == 400
 
     data = response.json
     assert "user" not in data
+
+
+@pytest.mark.parametrize(
+    "username, password",
+    [
+        ("Admin", "test_password"),
+    ],
+)
+def test_login_valid(client, username, password):
+    response = client.post(
+        "/auth/login", json={"username": username, "password": password}
+    )
+    assert response.status_code == 200
+
+    data = response.json
+    assert "access_token" in data
+    assert "user" in data
+
+    user = data["user"]
+    assert user["username"] == username
+
+
+@pytest.mark.parametrize(
+    "username, password",
+    [
+        ("Admin", "wrong_password"),
+        ("wrong_admin", "test_password"),
+        ("", "test_password"),
+        ("Admin", ""),
+    ],
+)
+def test_login_invalid(client, username, password):
+    response = client.post(
+        "/auth/login", json={"username": username, "password": password}
+    )
+    assert response.status_code == 400
