@@ -1,58 +1,39 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, request, jsonify, current_app
+from datetime import datetime, timedelta, timezone
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt_identity,
+    set_access_cookies,
+    get_jwt,
+    unset_jwt_cookies,
+    jwt_required,
+    current_user,
+)
 
-# from flask_login import login_required, logout_user, current_user, login_user
 
-# from .models import User
-# from .forms import SignUpForm, LoginForm
-# from . import db, login_manager
+from .models import User
+from .schema import UserSchema
+from . import db, jwt
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# @bp.route('/signup', methods=('GET', 'POST'))
-# def signup():
-#     form = SignUpForm()
-#     if form.validate_on_submit():
-#         existing_user = User.query.filter_by(username=form.username.data).first()
-#         if existing_user is None:
-#             user = User()
-#             user.username = form.username.data
-#             user.set_password(form.password.data)
-#             db.session.add(user)
-#             db.session.commit()
-#             login_user(user)
-#             return redirect(url_for('index.index'))
-#         else:
-#             flash('A user with that name already exists')
-#     return render_template('yarn_killer/signup.html', form=form)
-
-# @bp.route('/login', methods=('GET', 'POST'))
-# def login():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('index.index'))
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         user = User.query.filter_by(username=form.username.data).first()
-#         if user and user.check_password(password=form.password.data):
-#             login_user(user)
-#             # TODO look into how to secure the next_page thing
-#             next_page = request.args.get('next')
-#             return redirect(url_for('index.index'))
-#         flash('Invalid username/password combination')
-#     return render_template('yarn_killer/login.html', form=form)
-
-# @bp.route('/logout')
-# def logout():
-#     logout_user()
-#     return redirect(url_for('index.index'))
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     if user_id is not None:
-#         return User.query.get(user_id)
-#     return None
+one_user_schema = UserSchema()
+multi_user_schema = UserSchema(many=True)
 
 
-# @login_manager.unauthorized_handler
-# def unauthorized():
-#     flash('You must be logged in to view that page')
-#     return redirect(url_for('auth.login'))
+@bp.route("/", methods=["GET"])
+def get_users():
+    if request.args:
+        username = request.args.get("username")
+        role = request.args.get("role")
+
+        all_results = []
+        if username:
+            all_results.append(User.query.filter_by(username=username).all())
+        if role:
+            all_results.append(User.query.filter_by(role=role).all())
+
+        return jsonify(
+            multi_user_schema.dump(list(set.intersection(*map(set, all_results))))
+        )
+    return jsonify(multi_user_schema.dump(User.query.all()))

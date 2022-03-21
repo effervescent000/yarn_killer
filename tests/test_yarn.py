@@ -8,7 +8,6 @@ from yarn_killer.utils import decode_response
 
 @pytest.mark.parametrize("id,brand,fibers_num", [(1, "Caron", 1), (4, "Lion Brand", 0)])
 def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
-    # first test for a valid get call
     response = client.get(f"yarn/{id}")
     assert response.status_code == 200
 

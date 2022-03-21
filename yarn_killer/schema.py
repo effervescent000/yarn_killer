@@ -1,6 +1,11 @@
 from . import ma
 
 
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "username", "role")
+
+
 class ImageSchema(ma.Schema):
     class Meta:
         fields = ("id", "yarn_id", "colorway_id", "url", "label")
