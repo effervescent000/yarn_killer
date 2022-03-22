@@ -61,7 +61,8 @@ class User(db.Model):
         """Create hashed password"""
         self.password = generate_password_hash(password, method="sha256")
 
-    def check_password(self, password):
+    def check_password(self, password) -> bool:
+        """Returns true if the password matches"""
         return check_password_hash(self.password, password)
 
 

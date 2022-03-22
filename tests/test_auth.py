@@ -59,13 +59,10 @@ def test_create_user_valid(client, username, password):
     assert response.status_code == 201
 
     data = response.json
-    assert "access_token" in data
-    assert "user" in data
+    assert "id" in data
 
-    user = data["user"]
-    assert "id" in user
-    assert user["username"] == username
-    assert "password" not in user
+    cookies = [cookie for cookie in client.cookie_jar]
+    assert len(cookies) > 0
 
 
 @pytest.mark.parametrize(
@@ -94,11 +91,10 @@ def test_login_valid(client, username, password):
     assert response.status_code == 200
 
     data = response.json
-    assert "access_token" in data
-    assert "user" in data
+    assert "id" in data
 
-    user = data["user"]
-    assert user["username"] == username
+    cookies = [cookie for cookie in client.cookie_jar]
+    assert len(cookies) > 0
 
 
 @pytest.mark.parametrize(

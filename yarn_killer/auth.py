@@ -8,6 +8,7 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
     jwt_required,
     current_user,
+    get_csrf_token,
 )
 
 
@@ -65,15 +66,7 @@ def create_user():
             db.session.add(new_user)
             db.session.commit()
 
-            return (
-                jsonify(
-                    {
-                        "user": one_user_schema.dump(new_user),
-                        "access_token": create_access_token(identity=username),
-                    }
-                ),
-                201,
-            )
+            return generate_valid_user_response(new_user), 201
     return jsonify({"error": "invalid input"}), 400
 
 
@@ -88,16 +81,18 @@ def login_user():
         user = User.query.filter_by(username=username).first()
         if user:
             if user.check_password(password):
-                return jsonify(
-                    {
-                        "user": one_user_schema.dump(user),
-                        "access_token": create_access_token(identity=username),
-                    }
-                )
+                return generate_valid_user_response(user)
     return jsonify({"error": "invalid input"}), 400
 
 
 # utils
+
+
+def generate_valid_user_response(user):
+    response = jsonify(one_user_schema.dump(user))
+    access_token = create_access_token(identity=user.username)
+    set_access_cookies(response, access_token)
+    return response
 
 
 @current_app.after_request
