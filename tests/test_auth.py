@@ -1,6 +1,12 @@
 from flask import jsonify
 import pytest
 
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt_identity,
+)
+from flask_jwt_extended.config import config as jwtconfig
+
 # GET endpoint tests
 
 
@@ -46,6 +52,16 @@ def test_get_user_valid(client, id, username):
 def test_get_user_invalid(client):
     response = client.get("/auth/1000")
     assert response.status_code == 404
+
+
+# def test_check_user(client):
+#     # first login to get the cookies
+#     client.post("/auth/login", json={"username": "Admin", "password": "test_password"})
+#     response = client.get("/auth/check")
+#     assert response.status_code == 200
+
+#     data = response.json
+#     assert data
 
 
 # POST endpoint tests

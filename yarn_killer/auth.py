@@ -8,7 +8,6 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
     jwt_required,
     current_user,
-    get_csrf_token,
 )
 
 
@@ -49,6 +48,15 @@ def get_user(id):
     return jsonify(one_user_schema.dump(user)), 200 if user else 404
 
 
+@bp.route("/check", methods=["GET"])
+@jwt_required(optional=True)
+def check_for_logged_in_user():
+    print(current_user)
+    if current_user:
+        return jsonify(one_user_schema.dump(current_user))
+    return jsonify({})
+
+
 # POST endpoints
 
 
@@ -85,12 +93,21 @@ def login_user():
     return jsonify({"error": "invalid input"}), 400
 
 
+# DELETE endpoints
+@bp.route("/", methods=["DELETE"])
+@jwt_required()
+def logout_user():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
+
+
 # utils
 
 
 def generate_valid_user_response(user):
     response = jsonify(one_user_schema.dump(user))
-    access_token = create_access_token(identity=user.username)
+    access_token = create_access_token(identity=user)
     set_access_cookies(response, access_token)
     return response
 
@@ -108,6 +125,11 @@ def refresh_expiring_jwts(response):
     except (RuntimeError, KeyError):
         # Case where there is not a valid JWT. Just return the original respone
         return response
+
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.username
 
 
 @jwt.user_lookup_loader
