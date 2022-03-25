@@ -49,4 +49,8 @@ def create_app(test_config=None):
 
         app.register_blueprint(colorway.bp)
 
+        from . import links
+
+        app.register_blueprint(links.bp)
+
         return app

@@ -1,4 +1,3 @@
-from xmlrpc.client import boolean
 from flask import (
     Blueprint,
     request,
@@ -29,7 +28,7 @@ def get_yarn_list():
         brand = request.args.get("brand")
         name = request.args.get("name")
         gauge = request.args.get("gauge", type=int)
-        approx = request.args.get("approx", default=False, type=boolean)
+        approx = request.args.get("approx", default=False, type=bool)
         weight_name = request.args.get("weightName")
         texture = request.args.get("texture")
         color_style = request.args.get("colorStyle")

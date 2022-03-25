@@ -108,3 +108,18 @@ def populate_test_data():
         "Wool", 100
     )
     # leaving Vanna's Choice with no fibers for testing purposes
+
+    new_stores = [Store(name="Test store"), Store(name="Michaels")]
+    for store in new_stores:
+        db.session.add(store)
+        db.session.commit()
+
+    # leave yarn 4 with no links for testing
+    new_links = [
+        Link(url="https://www.michaels.com/agrjnagaj", store_id=2, yarn_id=1),
+        Link(url="https://www.michaels.com/eahrjiahejka", store_id=2, yarn_id=2),
+        Link(url="https://www.testing.com/aegjraejk", store_id=1, yarn_id=3),
+    ]
+    for link in new_links:
+        db.session.add(link)
+        db.session.commit()

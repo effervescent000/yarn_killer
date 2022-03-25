@@ -1,7 +1,5 @@
-from flask import jsonify
 import pytest
 
-from yarn_killer.utils import decode_response
 
 # GET endpoint tests
 
@@ -11,7 +9,7 @@ def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
     response = client.get(f"yarn/{id}")
     assert response.status_code == 200
 
-    data = decode_response(response)
+    data = response.json
     assert data["brand"] == brand
     assert len(data["fibers"]) == fibers_num
 
@@ -20,14 +18,14 @@ def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
 def test_get_yarn_by_id_invalid_input(client, id):
     response = client.get(f"yarn/{id}")
     assert response.status_code == 200
-    data = decode_response(response)
+    data = response.json
     assert data == {}
 
 
 def test_get_yarn(client):
     response = client.get("yarn/")
     assert response.status_code == 200
-    data = decode_response(response)
+    data = response.json
     assert len(data) == 4
 
 
@@ -60,7 +58,7 @@ def test_get_yarn_with_queries(client, brand, name, gauge, approx):
 
     response = client.get(f"/yarn/{build_url()}")
     assert response.status_code == 200
-    data = decode_response(response)
+    data = response.json
     assert len(data) > 0
     if brand:
         assert brand.lower() in data[0]["brand"].lower()
