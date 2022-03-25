@@ -98,11 +98,21 @@ class Yarn(db.Model):
 
     def add_fibers(self, fiber_type, fiber_amount):
         total_fibers = 0
+        fiber = None
         for x in self.fibers:
             total_fibers += x.amount
+            if x.type == fiber_type:
+                fiber = x
         if total_fibers + fiber_amount <= 100:
-            db.session.add(Fiber(yarn_id=self.id, type=fiber_type, amount=fiber_amount))
-            db.session.commit()
+            if not fiber:
+                fiber = Fiber(yarn_id=self.id, type=fiber_type, amount=fiber_amount)
+                db.session.add(fiber)
+                db.session.commit()
+            else:
+                fiber.amount += fiber_amount
+                db.session.commit()
+            return fiber
+        return False
 
 
 class Image(db.Model):

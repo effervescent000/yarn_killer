@@ -105,7 +105,7 @@ def populate_test_data():
         "Acrylic", 100
     )
     Yarn.query.filter_by(brand="Cascade Yarns", name="Cascade 220").first().add_fibers(
-        "Wool", 100
+        "Wool", 80
     )
     # leaving Vanna's Choice with no fibers for testing purposes
 
