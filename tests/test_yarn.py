@@ -1,126 +1,201 @@
 import pytest
 
-from yarn_killer.models import Yarn, Link, Colorway, Fiber
-from yarn_killer.forms import YarnForm, FiberForm
+
+# GET endpoint tests
+
+
+@pytest.mark.parametrize("id,brand,fibers_num", [(1, "Caron", 1), (4, "Lion Brand", 0)])
+def test_get_yarn_by_id_valid_input(client, id, brand, fibers_num):
+    response = client.get(f"yarn/{id}")
+    assert response.status_code == 200
+
+    data = response.json
+    assert data["brand"] == brand
+    assert len(data["fibers"]) == fibers_num
+
+
+@pytest.mark.parametrize("id", [(10000), ("aaaa")])
+def test_get_yarn_by_id_invalid_input(client, id):
+    response = client.get(f"yarn/{id}")
+    assert response.status_code == 200
+    data = response.json
+    assert data == {}
+
+
+def test_get_yarn(client):
+    response = client.get("yarn/")
+    assert response.status_code == 200
+    data = response.json
+    assert len(data) == 4
 
 
 @pytest.mark.parametrize(
-    "brand_name,yarn_name,weight_name,gauge,gauge_approx,yardage,weight_grams,texture,color_style",
-    [("Caron", "", "", 18, True, "", "", "Plied (3+)", "Solid")],
-)
-def test_browse(
-    client,
-    brand_name,
-    yarn_name,
-    weight_name,
-    gauge,
-    gauge_approx,
-    yardage,
-    weight_grams,
-    texture,
-    color_style,
-):
-    rv = client.get("yarn/browse")
-    assert rv.status_code == 200
-    assert b"Yarn Killer" in rv.data
-
-    data = {
-        "brand_name": brand_name,
-        "yarn_name": yarn_name,
-        "weight_name": weight_name,
-        "gauge_integer": gauge,
-        "gauge_approx": gauge_approx,
-        "yardage": yardage,
-        "weight_grams": weight_grams,
-        "texture": texture,
-        "color_style": color_style,
-    }
-    rv = client.post("yarn/browse", data=data)
-
-
-@pytest.mark.parametrize("id", [1, 2, 3])
-def test_view_yarn(client, id):
-    rv = client.get(f"yarn/{id}")
-    assert rv.status_code == 200
-
-
-@pytest.mark.parametrize(
-    "fiber_dict",
+    "brand,name,gauge, approx",
     [
-        {"Acrylic": 100},
-        {"Wool": 100},
-        {"Wool": 50, "Acrylic": 50},
-        {"Acrylic": 75, "Cotton": 30},
+        ("", "", "", ""),
+        ("Caron", "", "", ""),
+        ("caron", "", "", ""),
+        ("", "vanna", "", ""),
+        ("", "Vanna", "", ""),
+        ("Lion", "Vanna", "", ""),
+        ("", "", 19, "true"),
+        ("", "", 19, "false"),
+        ("", "", 19, ""),
     ],
 )
-def test_populate_fibers(client, app, fiber_dict):
-    with app.app_context():
-        from yarn_killer.yarn import populate_fibers
+def test_get_yarn_with_queries(client, brand, name, gauge, approx):
+    def build_url():
+        queries = []
+        if brand:
+            queries.append(f"brand={brand}")
+        if name:
+            queries.append(f"name={name}")
+        if gauge:
+            queries.append(f"gauge={gauge}")
+        if approx:
+            queries.append(f"approx={approx}")
+        return f"?{'&'.join(queries)}"
 
-        form = YarnForm()
-        for k, v in fiber_dict.items():
-            form.fiber_type_list.entries.append(FiberForm(fiber_type=k, fiber_qty=v))
-        yarns = (
-            Yarn.query.filter_by(brand="Caron", name="Simply Soft").first(),
-            Yarn.query.filter_by(brand="Lion Brand", name="Vanna's Choice").first(),
-        )
-        for yarn in yarns:
-            populate_fibers(yarn, form)
-            total_fiber_count = 0
-            for fiber in yarn.fibers:
-                total_fiber_count += fiber.amount
-            assert total_fiber_count <= 100
-            # assert sum(x.fibers.amount for x.fibers.amount in x.fibers) <= 100
-
-
-@pytest.mark.parametrize(
-    "yarn_id,new_name",
-    [
-        (1, "Simply Soft Solids"),
-    ],
-)
-def test_edit_yarn(client, yarn_id, new_name):  # TODO add fiber editing
-    assert client.get(f"yarn/{yarn_id}/edit").status_code == 200
-    assert client.get(f"yarn/new/edit").status_code == 200
-
-    data = {
-        "brand_name": "Caron",
-        "yarn_name": new_name,
-        "weight_name": "Thread",
-        "gauge": 18,
-        "yardage": 200,
-        "weight_grams": 200,
-        "texture": "Single-ply",
-        "color_style": "Solid",
-    }
-    client.post(f"yarn/{yarn_id}/edit", data=data)
-    yarn = Yarn.query.get(yarn_id)
-    assert yarn.name == new_name
-    assert yarn.texture == "Single-ply"
+    response = client.get(f"/yarn/{build_url()}")
+    assert response.status_code == 200
+    data = response.json
+    assert len(data) > 0
+    if brand:
+        assert brand.lower() in data[0]["brand"].lower()
+    if name:
+        assert name.lower() in data[0]["name"].lower()
+    if gauge:
+        if approx:
+            for yarn in data:
+                assert gauge - 2 < yarn["gauge"] < gauge + 2
+        else:
+            for yarn in data:
+                assert yarn["gauge"] == gauge
 
 
-def test_edit_yarn_validation(client):
-    pass
+# POST endpoint tests
 
 
 @pytest.mark.parametrize(
-    "yarn_id,url,store_name",
+    "input_data",
     [
-        (1, "https://www.michaels.com/caron-simply-soft-solid-yarn/M10109896.html", "Michaels"),
-        (1, "https://www.lovecrafts.com/en-us/p/caron-simply-soft", "LoveCrafts"),
         (
-            1,
-            "https://www.yarnspirations.com/caron-simply-soft-yarn/H97003.html",
-            "Yarnspirations",
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
         ),
     ],
 )
-def test_add_link(client, yarn_id, url, store_name):
-    data = {"url": url}
-    client.post(f"yarn/{yarn_id}/add_link", data=data)
+def test_add_yarn_valid(client, input_data):
+    response = client.post("yarn/", json=input_data)
+    assert response.status_code == 200
 
-    link = Link.query.filter_by(url=url).first()
-    assert link != None
-    assert link.yarn_id == yarn_id
-    assert link.store.name == store_name
-    assert link.current_price != None
+    data = response.json
+    assert data["id"]
+    assert data["brand"] == input_data["brand"]
+
+    for x in input_data["fibers"]:
+        fiber_match = False
+        for y in data["fibers"]:
+            if x["type"] == y["type"] and x["amount"] == y["amount"]:
+                fiber_match = True
+                break
+        assert fiber_match
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (
+            {
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "weightName": "Worsted",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "gauge": 20,
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+        (
+            {
+                "brand": "Lily",
+                "name": "Sugar'n Cream Solids & Denim",
+                "weightName": "Worsted",
+                "yardage": 120,
+                "unitWeight": 71,
+                "texture": "Plied (3+)",
+                "colorStyle": "Solid",
+                "discontinued": False,
+                "fibers": [{"type": "Cotton", "amount": 100}],
+            }
+        ),
+    ],
+)
+def test_add_yarn_invalid(client, input_data):
+    response = client.post("yarn/", json=input_data)
+    assert response.status_code == 200
+    assert "error" in response.json

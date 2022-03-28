@@ -1,68 +1,68 @@
 @import "variables", "mixins";
 
 body {
-  margin: 0;
-  padding: 0;
-  background-color: $primary-background-color;
-  color: $primary-text-color;
-  font-family: $primary-font;
+    margin: 0;
+    padding: 0;
+    background-color: $primary-background-color;
+    color: $primary-text-color;
+    font-family: $primary-font;
 
-  #page-container {
-    #header {
-      display: flex;
-      position: relative;
-      padding: 20px 20px;
-      justify-content: space-between;
-      background-color: $secondary-background-color;
-      #center-header {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, -20px);
-        background: rgb(42, 96, 65);
-        background: linear-gradient(
-          90deg,
-          rgba(42, 96, 65, 0) 0%,
-          rgba(33, 39, 56, 1) 30%,
-          rgba(33, 39, 56, 1) 70%,
-          rgba(42, 96, 65, 0) 100%
-        );
-        #logo {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px 100px;
-          img {
-            height: 100px;
-            color: white;
-          }
-          span {
-            color: $secondary-text-color;
-            padding-top: 20px;
-            // font-family: 'Praise', cursive;
-            font-family: $title-font;
-            font-size: 2.5em;
-          }
+    #page-container {
+        #header {
+            display: flex;
+            position: relative;
+            padding: 20px 20px;
+            justify-content: space-between;
+            background-color: $secondary-background-color;
+            #center-header {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -20px);
+                background: rgb(42, 96, 65);
+                background: linear-gradient(
+                    90deg,
+                    rgba(42, 96, 65, 0) 0%,
+                    rgba(33, 39, 56, 1) 30%,
+                    rgba(33, 39, 56, 1) 70%,
+                    rgba(42, 96, 65, 0) 100%
+                );
+                #logo {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 20px 100px;
+                    img {
+                        height: 100px;
+                        color: white;
+                    }
+                    span {
+                        color: $secondary-text-color;
+                        padding-top: 20px;
+                        // font-family: 'Praise', cursive;
+                        font-family: $title-font;
+                        font-size: 2.5em;
+                    }
+                }
+            }
         }
-      }
+        #content-wrapper {
+            margin: 150px 50px;
+            z-index: 1;
+        }
     }
-    #content-wrapper {
-      margin: 150px 50px;
-      z-index: 1;
-    }
-  }
 }
 
 .nav-bar {
-  @include nav-bar-styles;
-  a {
-    @include link-styles;
-  }
+    @include nav-bar-styles;
+    a {
+        @include link-styles;
+    }
 }
 
 a {
-  @include link-styles;
+    @include link-styles;
 }
 
 .NYI {
-  text-decoration: line-through !important;
+    text-decoration: line-through !important;
 }

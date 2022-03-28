@@ -1,59 +1,138 @@
-from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, request, jsonify, current_app
+from datetime import datetime, timedelta, timezone
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt_identity,
+    set_access_cookies,
+    get_jwt,
+    unset_jwt_cookies,
+    jwt_required,
+    current_user,
 )
-from flask_login import login_required, logout_user, current_user, login_user
+
 
 from .models import User
-from .forms import SignUpForm, LoginForm
-from . import db, login_manager
+from .schema import UserSchema
+from . import db, jwt
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-@bp.route('/signup', methods=('GET', 'POST'))
-def signup():
-    form = SignUpForm()
-    if form.validate_on_submit():
-        existing_user = User.query.filter_by(username=form.username.data).first()
-        if existing_user is None:
-            user = User()
-            user.username = form.username.data
-            user.set_password(form.password.data)
-            db.session.add(user)
+one_user_schema = UserSchema()
+multi_user_schema = UserSchema(many=True)
+
+
+# GET endpoints
+
+
+@bp.route("/", methods=["GET"])
+def get_users():
+    if request.args:
+        username = request.args.get("username")
+        role = request.args.get("role")
+
+        all_results = []
+        if username:
+            all_results.append(User.query.filter_by(username=username).all())
+        if role:
+            all_results.append(User.query.filter_by(role=role).all())
+
+        return jsonify(
+            multi_user_schema.dump(list(set.intersection(*map(set, all_results))))
+        )
+    return jsonify(multi_user_schema.dump(User.query.all()))
+
+
+@bp.route("/<id>", methods=["GET"])
+def get_user(id):
+    user = User.query.get(id)
+    return jsonify(one_user_schema.dump(user)), 200 if user else 404
+
+
+@bp.route("/check", methods=["GET"])
+@jwt_required(optional=True)
+def check_for_logged_in_user():
+    print(current_user)
+    if current_user:
+        return jsonify(one_user_schema.dump(current_user))
+    return jsonify({})
+
+
+# POST endpoints
+
+
+@bp.route("/signup", methods=["POST"])
+def create_user():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username and password:
+        if not User.query.filter_by(username=username).first():
+            new_user = User(username=username)
+            new_user.set_password(password)
+            db.session.add(new_user)
             db.session.commit()
-            login_user(user)
-            return redirect(url_for('index.index'))
-        else:
-            flash('A user with that name already exists')
-    return render_template('yarn_killer/signup.html', form=form)
 
-@bp.route('/login', methods=('GET', 'POST'))
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index.index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.check_password(password=form.password.data):
-            login_user(user)
-            # TODO look into how to secure the next_page thing
-            next_page = request.args.get('next')
-            return redirect(url_for('index.index'))
-        flash('Invalid username/password combination')
-    return render_template('yarn_killer/login.html', form=form)
-
-@bp.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index.index'))
-
-@login_manager.user_loader
-def load_user(user_id):
-    if user_id is not None:
-        return User.query.get(user_id)
-    return None
+            return generate_valid_user_response(new_user), 201
+    return jsonify({"error": "invalid input"}), 400
 
 
-@login_manager.unauthorized_handler
-def unauthorized():
-    flash('You must be logged in to view that page')
-    return redirect(url_for('auth.login'))
+@bp.route("/login", methods=["POST"])
+def login_user():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username and password:
+        user = User.query.filter_by(username=username).first()
+        if user:
+            if user.check_password(password):
+                return generate_valid_user_response(user)
+    return jsonify({"error": "invalid input"}), 400
+
+
+# DELETE endpoints
+@bp.route("/", methods=["DELETE"])
+@jwt_required()
+def logout_user():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
+
+
+# utils
+
+
+def generate_valid_user_response(user):
+    response = jsonify(one_user_schema.dump(user))
+    access_token = create_access_token(identity=user)
+    set_access_cookies(response, access_token)
+    return response
+
+
+@current_app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original respone
+        return response
+
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.username
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(username=identity).first()
