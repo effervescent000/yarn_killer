@@ -114,6 +114,23 @@ class Yarn(db.Model):
             return fiber
         return False
 
+    def add_link(self, url, store):
+        if not url:
+            return {"error": "invalid url"}
+        link = Link.query.filter_by(url=url).first()
+        if link:
+            return (
+                {"data": link}
+                if link.yarn_id == self.id
+                else {"error": "link already exists"}
+            )
+        if not store:
+            return {"error": "invalid store"}
+        link = Link(yarn_id=self.id, store_id=store.id, url=url)
+        db.session.add(link)
+        db.session.commit()
+        return {"data": link}
+
 
 class Image(db.Model):
     __tablename__ = "images"
