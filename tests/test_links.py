@@ -50,3 +50,59 @@ def test_get_link_by_id_invalid_input(client, id):
 
     data = response.json
     assert data == {}
+
+
+# POST endpoint tests
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (
+            {
+                "yarn_id": 1,
+                "url": "https://www.michaels.com/awegjnrakgr",
+                "store": "Michaels",
+            }
+        )
+    ],
+)
+def test_add_link_valid_input(client, input_data):
+    response = client.post("link/", json=input_data)
+    print(response.json)
+    assert response.status_code == 200
+    data = response.json
+    assert "id" in data
+    assert "store_id" in data
+
+
+@pytest.mark.parametrize(
+    "input_data",
+    [
+        (
+            {
+                "yarn_id": 10000,
+                "url": "https://www.michaels.com/awegjnrakgr",
+                "store": "Michaels",
+            }
+        ),
+        (
+            {
+                "url": "https://www.michaels.com/awegjnrakgr",
+                "store": "Michaels",
+            }
+        ),
+        (
+            {
+                "yarn_id": 1,
+                "url": "",
+                "store": "Michaels",
+            }
+        ),
+    ],
+)
+def test_add_link_invalid_input(client, input_data):
+    response = client.post("link/", json=input_data)
+    assert response.status_code == 400
+    data = response.json
+    assert "error" in data

@@ -198,24 +198,4 @@ def test_add_yarn_valid(client, input_data):
 def test_add_yarn_invalid(client, input_data):
     response = client.post("yarn/", json=input_data)
     assert response.status_code == 200
-    assert "Error" in response.json
-
-
-@pytest.mark.parametrize(
-    "input_data",
-    [
-        (
-            {
-                "yarn_id": 1,
-                "url": "https://www.michaels.com/awegjnrakgr",
-                "store": "Michael's",
-            }
-        )
-    ],
-)
-def test_add_link(client, input_data):
-    response = client.post("/yarn/link", json=input_data)
-    assert response.status_code == 200
-    data = response.json
-    assert "id" in data
-    assert "store_id" in data
+    assert "error" in response.json

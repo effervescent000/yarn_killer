@@ -94,16 +94,16 @@ def add_yarn():
     fibers = data.get("fibers")
 
     if not brand:
-        return jsonify("Error: Must include a brand name")
+        return jsonify({"error": "no brand name included in request"})
     if not name:
-        return jsonify("Error: Must include a yarn name")
+        return jsonify({"error": "no name included in request"})
 
     yarn = Yarn.query.filter_by(brand=brand, name=name).first()
     if yarn == None:
         if not weight_name:
-            return jsonify("Error: Must include a weight band")
+            return jsonify("error: Must include a weight band")
         if not gauge:
-            return jsonify("Error: Must include a gauge")
+            return jsonify("error: Must include a gauge")
 
         yarn = Yarn(
             brand=brand,
@@ -148,34 +148,6 @@ def add_image_to_yarn():
     db.session.commit()
 
     return jsonify(one_image_schema.dump(new_image))
-
-
-@bp.route("/link", methods=["POST"])
-def add_link_to_yarn():
-    data = request.get_json()
-    yarn_id = data.get("yarn_id")
-    if not yarn_id:
-        return jsonify({"error": "no ID included in request"})
-    url = data.get("url")
-    if not url:
-        return jsonify({"error": "no url included in request"})
-    store_data = data.get("store")
-    if not store_data:
-        return jsonify({"error": "no store included in request"})
-
-    store = Store.query.filter_by(name=store_data).first()
-    if not store:
-        store = Store(name=store_data)
-        db.session.add(store)
-        db.session.commit()
-
-    link = Link.query.filter_by(url=url).first()
-    if not link:
-        link = Link(url=url, store_id=store.id, yarn_id=yarn_id)
-        db.session.add(link)
-        db.session.commit()
-
-    return jsonify(one_link_schema.dump(link))
 
 
 # PUT endpoints
